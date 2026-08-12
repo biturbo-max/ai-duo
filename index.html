@@ -331,7 +331,7 @@
       </section>
 
       <footer class="statusbar">
-        <div id="connectionStatus"><span class="status-dot online"></span>Copilot Studio 서비스 임베드 연결됨</div>
+        <div id="connectionStatus"><span class="status-dot online"></span>Copilot Studio 서비스 연결됨</div>
       </footer>
     </main>
   </div>
@@ -341,12 +341,12 @@
 
     const iframe = document.getElementById('copilotIframe');
 
-    // 새 대화 버튼 클릭 시 iframe 새로고침
+    // '새 대화' 버튼 클릭 시 iframe을 새로고침하여 새로운 세션 시작
     document.getElementById('newChatButton').addEventListener('click', () => {
       iframe.src = iframe.src;
     });
 
-    // 모바일 사이드바 토글
+    // 모바일 환경에서의 사이드바 토글 동작
     document.getElementById('mobileMenuButton').addEventListener('click', () => {
       document.body.classList.add('sidebar-open');
     });
