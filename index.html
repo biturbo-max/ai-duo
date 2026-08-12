@@ -1,170 +1,359 @@
-<!DOCTYPE html>
-<html lang="ko" style="height: 100%;">
+<!doctype html>
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Duo - 지능형 채팅 어시스턴트">
-    <title>AI Duo</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="학교 구성원을 위한 멀티 모델 AI 채팅 서비스">
+  <title>Multi Model AI Agent</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <style>
+    :root {
+      --page: #f3f5f7;
+      --page-accent: #e8edf4;
+      --glass: rgba(255, 255, 255, 0.72);
+      --glass-strong: rgba(255, 255, 255, 0.9);
+      --line: rgba(27, 38, 55, 0.1);
+      --line-strong: rgba(27, 38, 55, 0.16);
+      --ink: #172033;
+      --muted: #687386;
+      --quiet: #8e98a8;
+      --accent: #1e63e9;
+      --accent-soft: #e9f0ff;
+      --danger: #c63d49;
+      --shadow: 0 18px 60px rgba(25, 39, 61, 0.09);
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+      --radius-md: 13px;
+      --sidebar-width: 282px;
+      --ease: 180ms cubic-bezier(.2, .75, .25, 1);
+    }
 
-        html, body {
-            height: 100%;
-            width: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            overflow: hidden;
-        }
+    * { box-sizing: border-box; }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            background: #f5f7fa;
-        }
+    html, body { height: 100%; }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255,255,255,.98) 0 16%, transparent 42%),
+        radial-gradient(circle at 88% 92%, rgba(218,228,243,.7), transparent 38%),
+        linear-gradient(135deg, var(--page), var(--page-accent));
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        .header-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
+    button, select, textarea { font: inherit; }
 
-        .header-content h1 {
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: -0.5px;
-        }
+    button, select { -webkit-tap-highlight-color: transparent; }
 
-        .header-content p {
-            font-size: 13px;
-            opacity: 0.9;
-            margin-top: 4px;
-        }
+    button:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(30, 99, 233, .2);
+      outline-offset: 2px;
+    }
 
-        .chat-wrapper {
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            padding: 20px;
-            gap: 20px;
-        }
+    .app-shell {
+      width: min(1540px, calc(100% - 28px));
+      height: min(940px, calc(100% - 28px));
+      margin: 14px auto;
+      display: grid;
+      grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+      border: 1px solid rgba(255,255,255,.86);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: rgba(255,255,255,.42);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(30px) saturate(135%);
+      -webkit-backdrop-filter: blur(30px) saturate(135%);
+    }
 
-        .chat-container {
-            flex: 1;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+    .sidebar {
+      position: relative;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 14px 14px;
+      border-right: 1px solid var(--line);
+      background: rgba(246, 248, 251, .74);
+      z-index: 5;
+    }
 
-        iframe {
-            flex: 1;
-            border: none;
-            border-radius: 16px;
-        }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 2px 8px 18px;
+    }
 
-        .sidebar {
-            width: 280px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            padding: 20px;
-            overflow-y: auto;
-            display: none;
-        }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: white;
+      background: linear-gradient(145deg, #252f43, #111827);
+      box-shadow: 0 7px 18px rgba(19, 29, 47, .16);
+      font-size: 20px;
+      font-weight: 760;
+      letter-spacing: -.04em;
+    }
 
-        @media (max-width: 1024px) {
-            .sidebar {
-                display: none;
-            }
-        }
+    .brand-copy strong { display: block; font-size: 15px; letter-spacing: -.015em; }
+    .brand-copy span { display: block; margin-top: 2px; color: var(--quiet); font-size: 11px; }
 
-        @media (max-width: 768px) {
-            .chat-wrapper {
-                padding: 12px;
-                gap: 12px;
-            }
+    .new-chat {
+      width: 100%;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-md);
+      color: var(--ink);
+      background: var(--glass-strong);
+      cursor: pointer;
+      transition: transform var(--ease), border-color var(--ease), background var(--ease);
+    }
 
-            .header {
-                padding: 16px 20px;
-            }
+    .new-chat:hover { transform: translateY(-1px); border-color: rgba(30,99,233,.25); background: #fff; }
 
-            .header-content h1 {
-                font-size: 20px;
-            }
-        }
+    .section-label {
+      margin: 21px 9px 8px;
+      color: var(--quiet);
+      font-size: 12px;
+      font-weight: 680;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
 
-        /* 스크롤바 스타일 */
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
+    .chat-list {
+      min-height: 0;
+      flex: 1;
+      overflow: auto;
+      padding: 0 2px 10px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(80,91,108,.22) transparent;
+    }
 
-        .sidebar::-webkit-scrollbar-track {
-            background: transparent;
-        }
+    .chat-item {
+      position: relative;
+      width: 100%;
+      min-height: 48px;
+      margin: 2px 0;
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 8px 8px 11px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: inherit;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
 
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #e0e0e0;
-            border-radius: 3px;
-        }
+    .chat-item:hover { background: rgba(255,255,255,.68); }
+    .chat-item[aria-current="true"] { border-color: var(--line); background: rgba(255,255,255,.86); }
+    .chat-main { min-width: 0; }
+    .chat-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 590; }
+    .chat-meta { margin-top: 4px; color: var(--quiet); font-size: 10px; }
 
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #b0b0b0;
-        }
-    </style>
+    .sidebar-footer { padding: 12px 6px 2px; border-top: 1px solid var(--line); }
+
+    .history-notice {
+      margin: 0;
+      padding: 3px 6px 1px;
+      color: var(--quiet);
+      font-size: 10.5px;
+      line-height: 1.55;
+      word-break: keep-all;
+    }
+
+    .main {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0,1fr) auto;
+      background: rgba(255,255,255,.56);
+    }
+
+    .topbar {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px clamp(15px, 3vw, 34px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.58);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      z-index: 3;
+    }
+
+    .topbar-left { min-width: 0; display: flex; align-items: center; gap: 12px; }
+    .mobile-menu { display: none; }
+    .session-copy { min-width: 0; }
+    .session-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 670; }
+
+    .workspace { position: relative; min-height: 0; width: 100%; height: 100%; overflow: hidden; }
+    .chat-iframe { width: 100%; height: 100%; border: 0; }
+
+    .statusbar {
+      min-height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 7px clamp(15px, 3vw, 34px);
+      border-top: 1px solid var(--line);
+      color: var(--quiet);
+      background: rgba(255,255,255,.62);
+      font-size: 11px;
+    }
+
+    .status-dot { width: 6px; height: 6px; display: inline-block; margin-right: 6px; border-radius: 50%; background: #a5adba; }
+    .status-dot.online { background: #39a568; box-shadow: 0 0 0 3px rgba(57,165,104,.1); }
+
+    .sidebar-scrim { display: none; }
+
+    @media (max-width: 780px) {
+      .app-shell { width: 100%; height: 100%; margin: 0; grid-template-columns: 1fr; border: 0; border-radius: 0; }
+      .sidebar { position: fixed; inset: 0 auto 0 0; width: min(310px, 86vw); transform: translateX(-102%); transition: transform var(--ease); box-shadow: 18px 0 48px rgba(20,31,50,.16); }
+      body.sidebar-open .sidebar { transform: translateX(0); }
+      .sidebar-scrim { position: fixed; inset: 0; display: block; border: 0; background: rgba(26,37,54,.2); opacity: 0; pointer-events: none; transition: opacity var(--ease); z-index: 4; }
+      body.sidebar-open .sidebar-scrim { opacity: 1; pointer-events: auto; }
+      .mobile-menu { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: rgba(255,255,255,.82); cursor: pointer; }
+      .topbar { min-height: 58px; }
+      .statusbar { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+    }
+  </style>
+  <style id="schoolai-design-refresh">
+    :root {
+      --page: #eef1f8;
+      --glass: rgba(255, 255, 255, .62);
+      --line: rgba(16, 24, 40, .075);
+      --ink: #101828;
+      --muted: #5b6472;
+      --quiet: #98a2b3;
+      --accent: #4f6af0;
+      --shadow: 0 9px 34px rgba(16, 24, 40, .075);
+    }
+
+    body {
+      background: var(--page);
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .app-shell {
+      width: calc(100% - 28px);
+      height: calc(100% - 28px);
+      margin: 14px;
+      gap: 14px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .sidebar, .main {
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .86);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .61);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 10px;
+      color: #fff;
+      background: linear-gradient(135deg, #6d8bff 0%, #9b85f8 58%, #e6a7ef 100%);
+      box-shadow: 0 5px 16px rgba(109, 139, 255, .38);
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 헤더 -->
-        <div class="header">
-            <div class="header-icon">🤖</div>
-            <div class="header-content">
-                <h1>AI Duo</h1>
-                <p>지능형 채팅 어시스턴트</p>
-            </div>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="대화 정보">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">✨</div>
+        <div class="brand-copy"><strong>Multi Model AI Agent</strong><span>우리 학교 멀티 모델 AI</span></div>
+      </div>
+      <button class="new-chat" id="newChatButton" type="button"><span aria-hidden="true">＋</span> 새 대화</button>
+      <div class="section-label">에이전트 정보</div>
+      <div class="chat-list">
+        <div class="chat-item" aria-current="true">
+          <div class="chat-main">
+            <div class="chat-title">Copilot Studio Agent</div>
+            <div class="chat-meta">연결됨</div>
+          </div>
         </div>
+      </div>
+      <div class="sidebar-footer">
+        <p class="history-notice">임베드 세션은 Copilot Studio 정책에 따라 관리됩니다.</p>
+      </div>
+    </aside>
 
-        <!-- 메인 콘텐츠 -->
-        <div class="chat-wrapper">
-            <div class="chat-container">
-                <iframe 
-                    src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_bot_ymR7dk/webchat?__version__=2&enableFileAttachment=false&cliAgent=true" 
-                    title="AI Duo 채팅 어시스턴트"
-                    allow="microphone; geolocation; midi; camera; payment; usb"
-                    loading="lazy">
-                </iframe>
-            </div>
+    <button class="sidebar-scrim" id="sidebarScrim" type="button" aria-label="사이드바 닫기"></button>
 
-            <!-- 사이드바 (확장 가능) -->
-            <aside class="sidebar">
-                <h3 style="font-size: 16px; margin-bottom: 16px; color: #333;">최근 대화</h3>
-                <div style="color: #999; font-size: 13px; text-align: center; padding: 20px 0;">
-                    대화 내역이 표시됩니다.
-                </div>
-            </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu" id="mobileMenuButton" type="button" aria-label="메뉴 열기">☰</button>
+          <div class="session-copy">
+            <div class="session-title">Multi Model AI Agent</div>
+          </div>
         </div>
-    </div>
+      </header>
+
+      <section class="workspace" id="workspace">
+        <iframe 
+          id="copilotIframe"
+          src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_bot_ymR7dk/webchat?__version__=2&enableFileAttachment=false&cliAgent=true" 
+          class="chat-iframe"
+          title="Copilot Studio Agent Chat"
+          allow="microphone; camera">
+        </iframe>
+      </section>
+
+      <footer class="statusbar">
+        <div id="connectionStatus"><span class="status-dot online"></span>Copilot Studio 서비스 임베드 연결됨</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    'use strict';
+
+    const iframe = document.getElementById('copilotIframe');
+
+    // 새 대화 버튼 클릭 시 iframe 새로고침
+    document.getElementById('newChatButton').addEventListener('click', () => {
+      iframe.src = iframe.src;
+    });
+
+    // 모바일 사이드바 토글
+    document.getElementById('mobileMenuButton').addEventListener('click', () => {
+      document.body.classList.add('sidebar-open');
+    });
+
+    document.getElementById('sidebarScrim').addEventListener('click', () => {
+      document.body.classList.remove('sidebar-open');
+    });
+  </script>
 </body>
 </html>
