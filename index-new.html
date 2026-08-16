@@ -188,12 +188,6 @@
           </button>
         </div>
 
-        <!-- MS Word (.docx) 대화 다운로드 버튼 -->
-        <button onclick="downloadAsWordDoc()" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-md active:scale-95 shrink-0" title="대화 내용 MS Word 파일 저장">
-          <i class="fa-solid fa-file-word text-sm"></i>
-          <span class="hidden sm:inline">Word 다운로드</span>
-        </button>
-
       </div>
     </header>
 
@@ -269,29 +263,35 @@
         <!-- VIEW 1: Copilot Studio Chat Webchat View -->
         <div id="chatViewSection" class="w-full h-full flex flex-col relative">
           
-          <!-- 빠른 질의 프롬프트 추천 칩 바 -->
-          <div class="px-4 py-2 bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/10 flex items-center justify-between gap-2 text-xs shrink-0 scrollbar-none">
-            <div class="flex items-center gap-2 overflow-x-auto scrollbar-none">
+          <!-- 빠른 질의 프롬프트 추천 칩 바 (CA1 ~ CA8) -->
+          <div class="px-4 py-2 bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/10 flex items-center justify-between gap-2 text-xs shrink-0">
+            <div class="flex items-center gap-2 overflow-x-auto scrollbar-none py-0.5">
               <span class="font-bold text-[11px] shrink-0 text-blue-600 dark:text-blue-400"><i class="fa-solid fa-bolt"></i> 추천 프롬프트:</span>
-              <button onclick="sendQuickPrompt('질문 설계자 에이전트로서 데이터 시각화의 탐구 주제 질문을 만들어줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
-                💡 CA1: 데이터 탐구 질문 설계
+              <button onclick="sendQuickPrompt('CA1 질문설계자 에이전트로서 데이터 시각화의 탐구 주제 질문을 만들어줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                💡 CA1: 질문 설계
               </button>
-              <button onclick="sendQuickPrompt('공공데이터 포털에서 데이터 수집하는 탐정 스킬 알려줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
-                🔍 CA2: 공공데이터 수집 탐정
+              <button onclick="sendQuickPrompt('CA2 데이터 탐정 에이전트로서 공공데이터 포털에서 데이터 수집하는 방법 알려줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                🔍 CA2: 데이터 탐정
               </button>
-              <button onclick="sendQuickPrompt('차트 디자이너 에이전트로서 알맞은 시각화 유형 추천해줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
-                📊 CA5: 데이터 차트 디자인
+              <button onclick="sendQuickPrompt('CA3 데이터 정제사 에이전트로서 결측치와 이상치 전처리 방법을 설명해줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                🧹 CA3: 데이터 정제
               </button>
-              <button onclick="sendQuickPrompt('바이브 코딩으로 웹 시각화 앱 만드는 가이드 작성해줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
-                💻 CA6: 바이브 코딩 빌더
+              <button onclick="sendQuickPrompt('CA4 분석 파트너 에이전트로서 데이터 변수 간 상관관계 분석 절차를 안내해줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                📈 CA4: 분석 파트너
+              </button>
+              <button onclick="sendQuickPrompt('CA5 시각화 디자이너 에이전트로서 알맞은 시각화 차트 유형을 추천해줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                📊 CA5: 차트 디자인
+              </button>
+              <button onclick="sendQuickPrompt('CA6 바이브코딩 빌더 에이전트로서 Chart.js로 웹 시각화 앱 만드는 가이드를 짜줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                💻 CA6: 바이브 코딩
+              </button>
+              <button onclick="sendQuickPrompt('CA7 스토리텔러 에이전트로서 데이터 분석 발표 대본 초안을 작성해줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                🎙️ CA7: 스토리텔링
+              </button>
+              <button onclick="sendQuickPrompt('CA8 수업설계 보고서 에이전트로서 2단원 데이터 시각화 수업 설계안 양식을 작성해줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                📝 CA8: 수업설계 보고서
               </button>
             </div>
-
-            <!-- 빠른 다운로드 링크 -->
-            <button onclick="downloadAsWordDoc()" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] flex items-center gap-1 shrink-0 transition-colors">
-              <i class="fa-solid fa-download"></i>
-              <span>Word 저장</span>
-            </button>
           </div>
 
           <!-- 실제 Copilot Studio Webchat iframe -->
@@ -336,7 +336,7 @@
               
               <!-- CA1 -->
               <div onclick="selectAgent('CA1')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
-                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c</div>
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">CA1</div>
                 <div class="font-bold text-xs" style="color: var(--text-main)">CA1-질문설계자</div>
                 <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
                 <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
@@ -346,7 +346,7 @@
 
               <!-- CA2 -->
               <div onclick="selectAgent('CA2')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
-                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c탐</div>
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">CA2</div>
                 <div class="font-bold text-xs" style="color: var(--text-main)">CA2-데이터 탐정</div>
                 <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
                 <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
@@ -356,7 +356,7 @@
 
               <!-- CA3 -->
               <div onclick="selectAgent('CA3')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
-                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c정</div>
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">CA3</div>
                 <div class="font-bold text-xs" style="color: var(--text-main)">CA3-데이터 정제사</div>
                 <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
                 <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
@@ -366,7 +366,7 @@
 
               <!-- CA4 -->
               <div onclick="selectAgent('CA4')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
-                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c파</div>
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">CA4</div>
                 <div class="font-bold text-xs" style="color: var(--text-main)">CA4-분석 파트너</div>
                 <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
                 <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
@@ -376,7 +376,7 @@
 
               <!-- CA5 -->
               <div onclick="selectAgent('CA5')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
-                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c디</div>
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">CA5</div>
                 <div class="font-bold text-xs" style="color: var(--text-main)">CA5-시각화 디자이너</div>
                 <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
                 <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
@@ -386,7 +386,7 @@
 
               <!-- CA6 -->
               <div onclick="selectAgent('CA6')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
-                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c빌</div>
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">CA6</div>
                 <div class="font-bold text-xs" style="color: var(--text-main)">CA6-바이브코딩 빌더</div>
                 <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
                 <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
@@ -396,7 +396,7 @@
 
               <!-- CA7 -->
               <div onclick="selectAgent('CA7')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
-                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c코</div>
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">CA7</div>
                 <div class="font-bold text-xs" style="color: var(--text-main)">CA7-스토리텔러&발표</div>
                 <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
                 <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
@@ -406,7 +406,7 @@
 
               <!-- CA8 -->
               <div onclick="selectAgent('CA8')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
-                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c작</div>
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">CA8</div>
                 <div class="font-bold text-xs" style="color: var(--text-main)">CA8-수업설계보고서</div>
                 <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
                 <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
@@ -420,9 +420,16 @@
 
         <!-- VIEW 3: 스킬 & 프롬프트 카드 가이드 View -->
         <div id="skillsViewSection" class="w-full h-full p-4 sm:p-6 overflow-auto hidden flex-col">
-          <div class="mb-4">
-            <h2 class="text-xl font-bold" style="color: var(--text-main)">에이전트별 전용 스킬 (Skill) & Instructions 카드</h2>
-            <p class="text-xs mt-0.5" style="color: var(--text-muted)">각 하위 에이전트의 전용 역량과 추천 질의 프롬프트를 확인하실 수 있습니다.</p>
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 class="text-xl font-bold" style="color: var(--text-main)">에이전트별 전용 스킬 (Skill) & Instructions 카드</h2>
+              <p class="text-xs mt-0.5" style="color: var(--text-muted)">각 하위 에이전트의 전용 역량과 추천 질의 프롬프트를 확인하실 수 있습니다.</p>
+            </div>
+            <a href="https://drive.google.com/drive/folders/1M3G-bRQIvEWh8HBVwBg6xsAPfEAD8oSK?usp=sharing" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 shadow-md transition-all active:scale-95 shrink-0">
+              <i class="fa-solid fa-folder-open text-sm"></i>
+              <span>자료 다운로드</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-80"></i>
+            </a>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="skillCardsGrid">
@@ -439,14 +446,14 @@
 
     // 8개 Child Agent 데이터셋 (MS Visio 이미지 기반)
     const agentData = [
-      { id: 'CA1', codeName: 'c', title: 'CA1-질문설계자', skill: 'CA1-data-question-design Skill', desc: '데이터 시각화 탐구 목적에 부합하는 핵심 질문과 가설을 설계합니다.', icon: 'fa-clipboard-question', prompt: 'CA1 질문설계자 에이전트로서, 학교 생활 데이터 분석을 위한 좋은 질문 3가지를 설계해줘.' },
-      { id: 'CA2', codeName: 'c탐', title: 'CA2-데이터 탐정', skill: 'CA2-public-data-sourcing Skill', desc: '공공데이터 포털(data.go.kr) 등 수집 가능한 오픈 데이터를 탐색합니다.', icon: 'fa-magnifying-glass-chart', prompt: 'CA2 데이터 탐정 에이전트로서, 환경 및 미세먼지 관련 공공데이터 수집 방법과 포맷을 추천해줘.' },
-      { id: 'CA3', codeName: 'c정', title: 'CA3-데이터 정제사', skill: 'CA3-data-cleaning Skill', desc: '결측치, 이상치 처리 및 시각화에 적합한 데이터 전처리를 도와줍니다.', icon: 'fa-filter', prompt: 'CA3 데이터 정제사 에이전트로서, 엑셀 파일의 결측치와 비정형 데이터를 정리하는 가이드를 줘.' },
-      { id: 'CA4', codeName: 'c파', title: 'CA4-분석 파트너', skill: 'CA4-data-analysis Skill', desc: '기초 통계 분석 및 변수 간의 관계, 패턴을 다각도로 분석합니다.', icon: 'fa-chart-pie', prompt: 'CA4 분석 파트너 에이전트로서, 상관관계와 변수 패턴을 분석하는 기본적인 절차를 설명해줘.' },
-      { id: 'CA5', codeName: 'c디', title: 'CA5-시각화 디자이너', skill: 'CA5-chart-design Skill', desc: '데이터 유형에 맞는 최적의 차트(막대, 꺾은선, 산점도 등)와 컬러 패널을 디자인합니다.', icon: 'fa-palette', prompt: 'CA5 시각화 디자이너 에이전트로서, 시간 흐름에 따른 변동 데이터를 표현할 최적 차트를 추천해줘.' },
-      { id: 'CA6', codeName: 'c빌', title: 'CA6-바이브코딩 빌더', skill: 'CA6-vibe-coding-webapp Skill', desc: 'HTML, Chart.js, Tailwind 등을 활용한 동적 웹 시각화 코드를 생성합니다.', icon: 'fa-code', prompt: 'CA6 바이브코딩 빌더 에이전트로서, Chart.js를 사용해 반응형 막대그래프 웹 애플리케이션 코드를 짜줘.' },
-      { id: 'CA7', codeName: 'c코', title: 'CA7-스토리텔러 & 발표 코치', skill: 'CA7-data-storytelling Skill', desc: '시각화 자료를 바탕으로 설득력 있는 스토리라인과 발표 대본을 작성합니다.', icon: 'fa-microphone-lines', prompt: 'CA7 스토리텔러 에이전트로서, 데이터 분석 결과를 학생들에게 쉽게 발표할 대본 초안을 만들어줘.' },
-      { id: 'CA8', codeName: 'c작', title: 'CA8-수업설계 보고서 음성 작성', skill: 'CA8-lesson-design-reportn Skill', desc: '수업 설계 보고서 작성 및 음성 스크립트 생성을 지원합니다.', icon: 'fa-file-signature', prompt: 'CA8 수업설계 보고서 에이전트로서, 2단원 데이터 시각화 수업 설계안 양식을 작성해줘.' }
+      { id: 'CA1', codeName: 'CA1', title: 'CA1-질문설계자', skill: 'CA1-data-question-design Skill', desc: '데이터 시각화 탐구 목적에 부합하는 핵심 질문과 가설을 설계합니다.', icon: 'fa-clipboard-question', prompt: 'CA1 질문설계자 에이전트로서, 학교 생활 데이터 분석을 위한 좋은 질문 3가지를 설계해줘.' },
+      { id: 'CA2', codeName: 'CA2', title: 'CA2-데이터 탐정', skill: 'CA2-public-data-sourcing Skill', desc: '공공데이터 포털(data.go.kr) 등 수집 가능한 오픈 데이터를 탐색합니다.', icon: 'fa-magnifying-glass-chart', prompt: 'CA2 데이터 탐정 에이전트로서, 환경 및 미세먼지 관련 공공데이터 수집 방법과 포맷을 추천해줘.' },
+      { id: 'CA3', codeName: 'CA3', title: 'CA3-데이터 정제사', skill: 'CA3-data-cleaning Skill', desc: '결측치, 이상치 처리 및 시각화에 적합한 데이터 전처리를 도와줍니다.', icon: 'fa-filter', prompt: 'CA3 데이터 정제사 에이전트로서, 엑셀 파일의 결측치와 비정형 데이터를 정리하는 가이드를 줘.' },
+      { id: 'CA4', codeName: 'CA4', title: 'CA4-분석 파트너', skill: 'CA4-data-analysis Skill', desc: '기초 통계 분석 및 변수 간의 관계, 패턴을 다각도로 분석합니다.', icon: 'fa-chart-pie', prompt: 'CA4 분석 파트너 에이전트로서, 상관관계와 변수 패턴을 분석하는 기본적인 절차를 설명해줘.' },
+      { id: 'CA5', codeName: 'CA5', title: 'CA5-시각화 디자이너', skill: 'CA5-chart-design Skill', desc: '데이터 유형에 맞는 최적의 차트(막대, 꺾은선, 산점도 등)와 컬러 패널을 디자인합니다.', icon: 'fa-palette', prompt: 'CA5 시각화 디자이너 에이전트로서, 시간 흐름에 따른 변동 데이터를 표현할 최적 차트를 추천해줘.' },
+      { id: 'CA6', codeName: 'CA6', title: 'CA6-바이브코딩 빌더', skill: 'CA6-vibe-coding-webapp Skill', desc: 'HTML, Chart.js, Tailwind 등을 활용한 동적 웹 시각화 코드를 생성합니다.', icon: 'fa-code', prompt: 'CA6 바이브코딩 빌더 에이전트로서, Chart.js를 사용해 반응형 막대그래프 웹 애플리케이션 코드를 짜줘.' },
+      { id: 'CA7', codeName: 'CA7', title: 'CA7-스토리텔러 & 발표 코치', skill: 'CA7-data-storytelling Skill', desc: '시각화 자료를 바탕으로 설득력 있는 스토리라인과 발표 대본을 작성합니다.', icon: 'fa-microphone-lines', prompt: 'CA7 스토리텔러 에이전트로서, 데이터 분석 결과를 학생들에게 쉽게 발표할 대본 초안을 만들어줘.' },
+      { id: 'CA8', codeName: 'CA8', title: 'CA8-수업설계 보고서 음성 작성', skill: 'CA8-lesson-design-reportn Skill', desc: '수업 설계 보고서 작성 및 음성 스크립트 생성을 지원합니다.', icon: 'fa-file-signature', prompt: 'CA8 수업설계 보고서 에이전트로서, 2단원 데이터 시각화 수업 설계안 양식을 작성해줘.' }
     ];
 
     // 1. 디자인 시안 Switcher (시안 1: Light Aero vs 시안 2: Dark Obsidian)
@@ -576,127 +583,7 @@
       showToast('새로운 대화 세션이 초기화되었습니다.');
     }
 
-    // 7. MS Word (.doc / .docx) 문서 생성 및 다운로드 함수
-    function downloadAsWordDoc() {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      // MS Word 호환 HTML 문서 생성
-      const docContent = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head>
-          <meta charset='utf-8'>
-          <title>정보 데이터 시각화 AI Agent 대화 보고서</title>
-          <style>
-            body { font-family: '맑은 고딕', 'Malgun Gothic', Arial, sans-serif; line-height: 1.6; color: #1e293b; padding: 24px; }
-            h1 { color: #1e40af; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; font-size: 20pt; }
-            h2 { color: #0f766e; margin-top: 24px; font-size: 14pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
-            .meta-box { background-color: #f1f5f9; border-left: 5px solid #3b82f6; padding: 14px; margin-bottom: 20px; font-size: 10.5pt; }
-            .meta-box p { margin: 4px 0; }
-            table { width: 100%; border-collapse: collapse; margin-top: 12px; margin-bottom: 20px; }
-            th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; font-size: 10pt; }
-            th { background-color: #e2e8f0; font-weight: bold; color: #1e293b; }
-            .chat-box { margin-top: 15px; }
-            .msg-user { background-color: #eff6ff; padding: 12px; border-radius: 8px; margin: 10px 0; border: 1px solid #bfdbfe; font-size: 10.5pt; }
-            .msg-agent { background-color: #f0fdf4; padding: 12px; border-radius: 8px; margin: 10px 0; border: 1px solid #bbf7d0; font-size: 10.5pt; }
-            .footer { margin-top: 40px; font-size: 9pt; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px; }
-          </style>
-        </head>
-        <body>
-          <h1>[정보] 2단원 데이터 시각화 학습 도우미 AI Agent 대화 및 학습 보고서</h1>
-          
-          <div class="meta-box">
-            <p><strong>■ 생성 일시:</strong> ${dateStr}</p>
-            <p><strong>■ 상위 에이전트:</strong> 2단원 데이터 시각화 학습 도우미 (Parent Agent)</p>
-            <p><strong>■ 하위 에이전트:</strong> 8 Child Agents 계층 구조 연동 (Microsoft Copilot Studio)</p>
-          </div>
-
-          <h2>1. 하위 에이전트 (8 Child Agents) 스킬 구성표</h2>
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 10%;">코드</th>
-                <th style="width: 25%;">에이전트명</th>
-                <th style="width: 30%;">전용 스킬 (Skill)</th>
-                <th style="width: 35%;">주요 역할</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${agentData.map(a => `
-                <tr>
-                  <td style="text-align: center; font-weight: bold; color: #d97706;">${a.codeName}</td>
-                  <td><strong>${a.title}</strong></td>
-                  <td><code>${a.skill}</code></td>
-                  <td>${a.desc}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-
-          <h2>2. 대화 세션 및 질의응답 기록</h2>
-          <div class="chat-box">
-            <div class="msg-user">
-              <strong>👤 학습자 / 교사 질의:</strong><br>
-              "2단원 데이터 시각화 수업을 위한 탐구 질문 설계 및 차트 디자인 가이드를 작성해줘."
-            </div>
-            <div class="msg-agent">
-              <strong>🤖 AI Agent 답변:</strong><br>
-              <strong>[CA1-질문설계자] 데이터 탐구 핵심 질문 추천</strong><br>
-              1. 우리 학급 학생들의 주간 동아리 활동 시간과 학업 성취도 간의 연관성은 어떠한가?<br>
-              2. 최근 3년간 우리 지역의 월별 평균 기온과 미세먼지 농도 수치의 상관관계는 어떠한가?<br><br>
-              <strong>[CA5-시각화 디자이너] 최적 시각화 그래프 추천</strong><br>
-              - 시간적 흐름에 따른 연속 변화: <strong>꺾은선그래프 (Line Chart)</strong><br>
-              - 범주별 값 비교: <strong>막대그래프 (Bar Chart)</strong><br>
-              - 두 변수 간의 관계/상관성: <strong>산점도 (Scatter Plot)</strong>
-            </div>
-            <div class="msg-user">
-              <strong>👤 학습자 / 교사 질의:</strong><br>
-              "공공데이터 수집 탐정 스킬 및 Chart.js 웹 시각화 가이드를 알려줘."
-            </div>
-            <div class="msg-agent">
-              <strong>🤖 AI Agent 답변:</strong><br>
-              <strong>[CA2-데이터 탐정 & CA6-바이브코딩 빌더]</strong><br>
-              - 공공데이터 포털(data.go.kr)에서 CSV/JSON 포맷 데이터 다운로드 후 CA3 데이터 정제사 스킬 적용.<br>
-              - HTML5 Canvas 및 Chart.js 라이브러리를 활용하여 반응형 웹 차트 대시보드 자동 구축 지원.
-            </div>
-          </div>
-
-          <h2>3. 수업 활용 및 학습 평가 요약</h2>
-          <p>본 문서에는 Microsoft Copilot Studio 기반 AI Agent와의 실시간 대화 및 학습 활동 기록이 수록되어 있습니다. Word 파일로 출력하여 수업 포트폴리오 및 학습 보고서로 제출할 수 있습니다.</p>
-
-          <div class="footer">
-            정보 2단원 데이터 시각화 학습 도우미 AI Agent 대시보드 | Microsoft Visio & Copilot Studio
-          </div>
-        </body>
-        </html>
-      `;
-
-      // UTF-8 BOM 추가하여 한글 깨짐 방지
-      const blob = new Blob(['\ufeff' + docContent], {
-        type: 'application/msword;charset=utf-8'
-      });
-
-      const fileName = `[정보_데이터시각화_AI_Agent]_대화기록_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.doc`;
-      
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      showToast('MS Word 대화 보고서 (.doc/.docx) 다운로드가 시작되었습니다!');
-    }
-
-    // 8. 모바일 사이드바 토글
+    // 7. 모바일 사이드바 토글
     function toggleMobileSidebar() {
       const sidebar = document.getElementById('appSidebar');
       const overlay = document.getElementById('sidebarOverlay');
