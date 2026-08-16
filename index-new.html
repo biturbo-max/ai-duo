@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="정보 2단원 데이터 시각화 학습 도우미 AI Agent - 프리미엄 UI">
+  <title>정보 데이터 시각화 AI Agent 대시보드</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard Variable', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 공통 기본 스타일 */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; padding: 0; font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(150, 150, 150, 0.5); }
+
+    /* =========================================================
+       [시안 1] 라이트 에어로 글래스 테마 (theme-light-aero)
+       ========================================================= */
+    .theme-light-aero {
+      --bg-page: #f0f4f9;
+      --bg-glass: rgba(255, 255, 255, 0.72);
+      --bg-glass-card: rgba(255, 255, 255, 0.85);
+      --border-color: rgba(226, 232, 240, 0.8);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #3b82f6;
+      --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+      --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 0 15px rgba(59, 130, 246, 0.05);
+    }
+    .theme-light-aero .app-background {
+      background: 
+        radial-gradient(circle at 10% 10%, rgba(219, 234, 254, 0.6) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(237, 233, 254, 0.6) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(241, 245, 249, 1) 0%, #e2e8f0 100%);
+    }
+
+    /* =========================================================
+       [시안 2] 다크 옵시디언 & 네온 하이테크 테마 (theme-dark-obsidian)
+       ========================================================= */
+    .theme-dark-obsidian {
+      --bg-page: #0b0f19;
+      --bg-glass: rgba(18, 24, 38, 0.75);
+      --bg-glass-card: rgba(24, 32, 50, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #6366f1 100%);
+      --card-shadow: 0 10px 35px -5px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.15);
+    }
+    .theme-dark-obsidian .app-background {
+      background: 
+        radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.15) 0%, transparent 45%),
+        linear-gradient(135deg, #090d16 0%, #0f172a 100%);
+    }
+
+    /* 공통 Glassmorphism 카드 */
+    .glass-panel {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--card-shadow);
+    }
+
+    .glass-card {
+      background: var(--bg-glass-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 흐르는 그라데이션 애니메이션 효과 */
+    .glow-border {
+      position: relative;
+    }
+    .glow-border::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: var(--accent-gradient);
+      z-index: -1;
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+    .glow-border:hover::after {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body class="theme-light-aero transition-colors duration-300" id="bodyRoot">
+
+  <!-- 메인 배경 컨테이너 -->
+  <div class="app-background fixed inset-0 z-0"></div>
+
+  <!-- 전체 앱 레이아웃 (상단 시안 스위처 + 메인 쉘) -->
+  <div class="relative z-10 flex flex-col h-screen w-screen p-2 sm:p-4 gap-3 max-w-[1800px] mx-auto">
+    
+    <!-- 1. 상단 디자인 시안 선택기 & 상태 바 -->
+    <header class="glass-panel rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-3">
+        <!-- 메인 로고 및 타이틀 -->
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg" style="background: var(--accent-gradient)">
+          <i class="fa-solid fa-brain-circuit text-xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-base sm:text-lg tracking-tight" style="color: var(--text-main)">
+              [정보] 2단원 데이터 시각화 학습 도우미 AI Agent
+            </h1>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">v2.5 Pro</span>
+          </div>
+          <p class="text-xs" style="color: var(--text-muted)">Microsoft Copilot Studio & 8가지 Child Agent 하이어라키 지원</p>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 시안 선택 및 탭 컨트롤 -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+        
+        <!-- View 탭 셀렉터 (채팅 / 에이전트 구조도 / 스킬 매트릭스) -->
+        <div class="flex bg-black/5 dark:bg-white/5 p-1 rounded-xl border border-black/5 dark:border-white/10 text-xs font-medium">
+          <button id="viewChatBtn" onclick="switchMainView('chat')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-white dark:bg-slate-800 shadow-sm font-semibold text-blue-600 dark:text-blue-400">
+            <i class="fa-regular fa-comments"></i> <span>AI 채팅 모드</span>
+          </button>
+          <button id="viewDiagramBtn" onclick="switchMainView('diagram')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 hover:opacity-80" style="color: var(--text-muted)">
+            <i class="fa-solid fa-sitemap"></i> <span>에이전트 구조도</span>
+          </button>
+          <button id="viewSkillsBtn" onclick="switchMainView('skills')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 hover:opacity-80" style="color: var(--text-muted)">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> <span>스킬 & 프롬프트</span>
+          </button>
+        </div>
+
+        <div class="h-4 w-px bg-gray-300 dark:bg-gray-700 hidden md:block"></div>
+
+        <!-- 디자인 시안 스위처 (시안 1 vs 시안 2) -->
+        <div class="flex items-center gap-1.5 bg-black/5 dark:bg-white/10 p-1 rounded-xl border border-black/5 dark:border-white/10">
+          <span class="text-[11px] font-bold px-2 hidden lg:inline-block" style="color: var(--text-muted)">디자인 시안:</span>
+          
+          <button id="themeOption1" onclick="setDesignTheme('light-aero')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-white text-slate-800 shadow-md">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+            <span>시안 1: 모던 에어로</span>
+          </button>
+          
+          <button id="themeOption2" onclick="setDesignTheme('dark-obsidian')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+            <span>시안 2: 다크 옵시디언</span>
+          </button>
+        </div>
+
+        <!-- MS Word (.docx) 대화 다운로드 버튼 -->
+        <button onclick="downloadAsWordDoc()" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-md active:scale-95 shrink-0" title="대화 내용 MS Word 파일 저장">
+          <i class="fa-solid fa-file-word text-sm"></i>
+          <span class="hidden sm:inline">Word 다운로드</span>
+        </button>
+
+      </div>
+    </header>
+
+    <!-- 2. 메인 애플리케이션 쉘 (사이드바 + 메인 워크스페이스) -->
+    <div class="flex-1 flex gap-3 min-h-0 relative">
+      
+      <!-- 사이드바 (Child Agents 리스트 및 빠른 프롬프트) -->
+      <aside id="appSidebar" class="glass-panel w-72 lg:w-80 rounded-2xl flex flex-col p-3.5 gap-3 shrink-0 transition-all duration-300 absolute md:relative z-30 inset-y-0 left-0 -translate-x-full md:translate-x-0 shadow-2xl md:shadow-none">
+        
+        <!-- 사이드바 헤더 및 새 대화 버튼 -->
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted)">Agent Architecture</span>
+          <button onclick="reloadChatSession()" class="text-xs px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-medium transition-all flex items-center gap-1">
+            <i class="fa-solid fa-rotate-right text-[10px]"></i> 세션 초기화
+          </button>
+        </div>
+
+        <button onclick="reloadChatSession()" class="w-full py-2.5 px-3 rounded-xl font-medium text-xs flex items-center justify-center gap-2 text-white shadow-lg transition-transform active:scale-95" style="background: var(--accent-gradient)">
+          <i class="fa-solid fa-plus"></i> 새 데이터 시각화 대화 시작
+        </button>
+
+        <!-- 에이전트 브라우저 / 패러디 파트 -->
+        <div class="flex-1 overflow-y-auto pr-1 space-y-1.5">
+          <div class="px-1 py-1 text-[11px] font-semibold text-gray-400 flex justify-between items-center">
+            <span>하위 에이전트 목록 (8 Child Agents)</span>
+            <span class="text-[10px] bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500">2단원</span>
+          </div>
+
+          <!-- Parent Agent Badge -->
+          <div class="p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
+              2도
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="text-xs font-bold truncate" style="color: var(--text-main)">2단원 데이터 시각화 학습 도우미</div>
+              <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Parent Agent</div>
+            </div>
+          </div>
+
+          <div class="my-2 border-t border-black/5 dark:border-white/5"></div>
+
+          <!-- 8 Child Agents Cards -->
+          <div class="space-y-1.5" id="agentListContainer">
+            <!-- JS로 동적 생성 및 인터랙션 연결 -->
+          </div>
+        </div>
+
+        <!-- 하단 상태 바 -->
+        <div class="pt-2 border-t border-black/5 dark:border-white/10 flex items-center justify-between text-[11px]" style="color: var(--text-muted)">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Copilot Studio 연결됨</span>
+          </div>
+          <span class="text-[10px] opacity-70">MS Office Visio 기반</span>
+        </div>
+      </aside>
+
+      <!-- 모바일 사이드바 오버레이 모달 배경 -->
+      <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-20 hidden md:hidden"></div>
+
+      <!-- 메인 콘텐츠 워크스페이스 -->
+      <main class="flex-1 glass-panel rounded-2xl flex flex-col min-w-0 overflow-hidden relative">
+        
+        <!-- 모바일 헤더 툴바 (사이드바 토글용) -->
+        <div class="md:hidden p-2.5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+          <button onclick="toggleMobileSidebar()" class="p-2 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-medium flex items-center gap-2" style="color: var(--text-main)">
+            <i class="fa-solid fa-bars"></i>
+            <span>에이전트 목록</span>
+          </button>
+          <span class="text-xs font-bold" id="currentViewTitle">AI 채팅 모드</span>
+        </div>
+
+        <!-- VIEW 1: Copilot Studio Chat Webchat View -->
+        <div id="chatViewSection" class="w-full h-full flex flex-col relative">
+          
+          <!-- 빠른 질의 프롬프트 추천 칩 바 -->
+          <div class="px-4 py-2 bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/10 flex items-center justify-between gap-2 text-xs shrink-0 scrollbar-none">
+            <div class="flex items-center gap-2 overflow-x-auto scrollbar-none">
+              <span class="font-bold text-[11px] shrink-0 text-blue-600 dark:text-blue-400"><i class="fa-solid fa-bolt"></i> 추천 프롬프트:</span>
+              <button onclick="sendQuickPrompt('질문 설계자 에이전트로서 데이터 시각화의 탐구 주제 질문을 만들어줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                💡 CA1: 데이터 탐구 질문 설계
+              </button>
+              <button onclick="sendQuickPrompt('공공데이터 포털에서 데이터 수집하는 탐정 스킬 알려줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                🔍 CA2: 공공데이터 수집 탐정
+              </button>
+              <button onclick="sendQuickPrompt('차트 디자이너 에이전트로서 알맞은 시각화 유형 추천해줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                📊 CA5: 데이터 차트 디자인
+              </button>
+              <button onclick="sendQuickPrompt('바이브 코딩으로 웹 시각화 앱 만드는 가이드 작성해줘.')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 whitespace-nowrap hover:border-blue-400 transition-colors" style="color: var(--text-main)">
+                💻 CA6: 바이브 코딩 빌더
+              </button>
+            </div>
+
+            <!-- 빠른 다운로드 링크 -->
+            <button onclick="downloadAsWordDoc()" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] flex items-center gap-1 shrink-0 transition-colors">
+              <i class="fa-solid fa-download"></i>
+              <span>Word 저장</span>
+            </button>
+          </div>
+
+          <!-- 실제 Copilot Studio Webchat iframe -->
+          <div class="flex-1 w-full h-full bg-transparent relative">
+            <iframe 
+              id="copilotIframe" 
+              src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_bot_ymR7dk/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
+              class="w-full h-full border-0 rounded-b-2xl"
+              title="Copilot Studio Agent Chat"
+              allow="microphone; camera; clipboard-write">
+            </iframe>
+          </div>
+        </div>
+
+        <!-- VIEW 2: 에이전트 인터랙티브 구조도 View (Visio 재구성) -->
+        <div id="diagramViewSection" class="w-full h-full p-4 sm:p-6 overflow-auto hidden flex-col">
+          <div class="mb-4 text-center">
+            <h2 class="text-xl font-bold" style="color: var(--text-main)">[정보] 2단원 데이터 시각화 학습 도우미 AI Agent 계층 구조도</h2>
+            <p class="text-xs mt-1" style="color: var(--text-muted)">각 에이전트 노드를 클릭하면 해당 에이전트의 상세 스킬 및 역할로 빠른 채팅 연결이 가능합니다.</p>
+          </div>
+
+          <!-- Visio 다이어그램의 HTML/SVG 인터랙티브 재구성 -->
+          <div class="flex-1 min-h-[520px] flex flex-col items-center justify-center p-2">
+            
+            <!-- Parent Node -->
+            <div class="glass-card p-4 rounded-2xl border-2 border-emerald-500/40 text-center shadow-lg max-w-md w-full relative mb-8 hover:scale-105 transition-transform cursor-pointer" onclick="selectAgent('Parent')">
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full">
+                2도
+              </div>
+              <h3 class="font-bold text-base mt-1" style="color: var(--text-main)">2단원 데이터 시각화 학습 도우미</h3>
+              <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">(Parent Agent)</p>
+            </div>
+
+            <!-- Connector Lines (Top to Bottom) -->
+            <div class="w-full max-w-5xl h-6 relative my-1 hidden md:block">
+              <div class="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-full bg-blue-400/50"></div>
+              <div class="absolute bottom-0 left-[6%] right-[6%] h-0.5 bg-blue-400/50"></div>
+            </div>
+
+            <!-- 8 Child Agents Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2.5 w-full max-w-6xl mt-2">
+              
+              <!-- CA1 -->
+              <div onclick="selectAgent('CA1')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c</div>
+                <div class="font-bold text-xs" style="color: var(--text-main)">CA1-질문설계자</div>
+                <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
+                <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
+                  CA1-data-question-design
+                </div>
+              </div>
+
+              <!-- CA2 -->
+              <div onclick="selectAgent('CA2')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c탐</div>
+                <div class="font-bold text-xs" style="color: var(--text-main)">CA2-데이터 탐정</div>
+                <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
+                <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
+                  CA2-public-data-sourcing
+                </div>
+              </div>
+
+              <!-- CA3 -->
+              <div onclick="selectAgent('CA3')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c정</div>
+                <div class="font-bold text-xs" style="color: var(--text-main)">CA3-데이터 정제사</div>
+                <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
+                <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
+                  CA3-data-cleaning
+                </div>
+              </div>
+
+              <!-- CA4 -->
+              <div onclick="selectAgent('CA4')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c파</div>
+                <div class="font-bold text-xs" style="color: var(--text-main)">CA4-분석 파트너</div>
+                <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
+                <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
+                  CA4-data-analysis
+                </div>
+              </div>
+
+              <!-- CA5 -->
+              <div onclick="selectAgent('CA5')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c디</div>
+                <div class="font-bold text-xs" style="color: var(--text-main)">CA5-시각화 디자이너</div>
+                <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
+                <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
+                  CA5-chart-design
+                </div>
+              </div>
+
+              <!-- CA6 -->
+              <div onclick="selectAgent('CA6')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c빌</div>
+                <div class="font-bold text-xs" style="color: var(--text-main)">CA6-바이브코딩 빌더</div>
+                <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
+                <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
+                  CA6-vibe-coding-webapp
+                </div>
+              </div>
+
+              <!-- CA7 -->
+              <div onclick="selectAgent('CA7')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c코</div>
+                <div class="font-bold text-xs" style="color: var(--text-main)">CA7-스토리텔러&발표</div>
+                <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
+                <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
+                  CA7-data-storytelling
+                </div>
+              </div>
+
+              <!-- CA8 -->
+              <div onclick="selectAgent('CA8')" class="glass-card p-3 rounded-xl border border-amber-500/30 text-center hover:border-amber-500 cursor-pointer flex flex-col justify-between h-full group">
+                <div class="bg-amber-500 text-white text-[10px] font-bold rounded-lg py-1 mb-2 group-hover:bg-amber-600">c작</div>
+                <div class="font-bold text-xs" style="color: var(--text-main)">CA8-수업설계보고서</div>
+                <div class="text-[10px] text-gray-500 my-1">(Child Agent)</div>
+                <div class="mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[9.5px] bg-blue-500/10 text-blue-600 dark:text-blue-300 p-1 rounded font-mono">
+                  CA8-lesson-reportn
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 3: 스킬 & 프롬프트 카드 가이드 View -->
+        <div id="skillsViewSection" class="w-full h-full p-4 sm:p-6 overflow-auto hidden flex-col">
+          <div class="mb-4">
+            <h2 class="text-xl font-bold" style="color: var(--text-main)">에이전트별 전용 스킬 (Skill) & Instructions 카드</h2>
+            <p class="text-xs mt-0.5" style="color: var(--text-muted)">각 하위 에이전트의 전용 역량과 추천 질의 프롬프트를 확인하실 수 있습니다.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="skillCardsGrid">
+            <!-- JS 동적 생성 -->
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    // 8개 Child Agent 데이터셋 (MS Visio 이미지 기반)
+    const agentData = [
+      { id: 'CA1', codeName: 'c', title: 'CA1-질문설계자', skill: 'CA1-data-question-design Skill', desc: '데이터 시각화 탐구 목적에 부합하는 핵심 질문과 가설을 설계합니다.', icon: 'fa-clipboard-question', prompt: 'CA1 질문설계자 에이전트로서, 학교 생활 데이터 분석을 위한 좋은 질문 3가지를 설계해줘.' },
+      { id: 'CA2', codeName: 'c탐', title: 'CA2-데이터 탐정', skill: 'CA2-public-data-sourcing Skill', desc: '공공데이터 포털(data.go.kr) 등 수집 가능한 오픈 데이터를 탐색합니다.', icon: 'fa-magnifying-glass-chart', prompt: 'CA2 데이터 탐정 에이전트로서, 환경 및 미세먼지 관련 공공데이터 수집 방법과 포맷을 추천해줘.' },
+      { id: 'CA3', codeName: 'c정', title: 'CA3-데이터 정제사', skill: 'CA3-data-cleaning Skill', desc: '결측치, 이상치 처리 및 시각화에 적합한 데이터 전처리를 도와줍니다.', icon: 'fa-filter', prompt: 'CA3 데이터 정제사 에이전트로서, 엑셀 파일의 결측치와 비정형 데이터를 정리하는 가이드를 줘.' },
+      { id: 'CA4', codeName: 'c파', title: 'CA4-분석 파트너', skill: 'CA4-data-analysis Skill', desc: '기초 통계 분석 및 변수 간의 관계, 패턴을 다각도로 분석합니다.', icon: 'fa-chart-pie', prompt: 'CA4 분석 파트너 에이전트로서, 상관관계와 변수 패턴을 분석하는 기본적인 절차를 설명해줘.' },
+      { id: 'CA5', codeName: 'c디', title: 'CA5-시각화 디자이너', skill: 'CA5-chart-design Skill', desc: '데이터 유형에 맞는 최적의 차트(막대, 꺾은선, 산점도 등)와 컬러 패널을 디자인합니다.', icon: 'fa-palette', prompt: 'CA5 시각화 디자이너 에이전트로서, 시간 흐름에 따른 변동 데이터를 표현할 최적 차트를 추천해줘.' },
+      { id: 'CA6', codeName: 'c빌', title: 'CA6-바이브코딩 빌더', skill: 'CA6-vibe-coding-webapp Skill', desc: 'HTML, Chart.js, Tailwind 등을 활용한 동적 웹 시각화 코드를 생성합니다.', icon: 'fa-code', prompt: 'CA6 바이브코딩 빌더 에이전트로서, Chart.js를 사용해 반응형 막대그래프 웹 애플리케이션 코드를 짜줘.' },
+      { id: 'CA7', codeName: 'c코', title: 'CA7-스토리텔러 & 발표 코치', skill: 'CA7-data-storytelling Skill', desc: '시각화 자료를 바탕으로 설득력 있는 스토리라인과 발표 대본을 작성합니다.', icon: 'fa-microphone-lines', prompt: 'CA7 스토리텔러 에이전트로서, 데이터 분석 결과를 학생들에게 쉽게 발표할 대본 초안을 만들어줘.' },
+      { id: 'CA8', codeName: 'c작', title: 'CA8-수업설계 보고서 음성 작성', skill: 'CA8-lesson-design-reportn Skill', desc: '수업 설계 보고서 작성 및 음성 스크립트 생성을 지원합니다.', icon: 'fa-file-signature', prompt: 'CA8 수업설계 보고서 에이전트로서, 2단원 데이터 시각화 수업 설계안 양식을 작성해줘.' }
+    ];
+
+    // 1. 디자인 시안 Switcher (시안 1: Light Aero vs 시안 2: Dark Obsidian)
+    function setDesignTheme(themeName) {
+      const body = document.getElementById('bodyRoot');
+      const btn1 = document.getElementById('themeOption1');
+      const btn2 = document.getElementById('themeOption2');
+
+      if (themeName === 'light-aero') {
+        body.className = 'theme-light-aero transition-colors duration-300';
+        btn1.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-white text-slate-800 shadow-md';
+        btn2.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-400 hover:text-white';
+      } else if (themeName === 'dark-obsidian') {
+        body.className = 'theme-dark-obsidian dark transition-colors duration-300';
+        btn2.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-indigo-600 text-white shadow-md shadow-indigo-500/30';
+        btn1.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white';
+      }
+    }
+
+    // 2. View 탭 전환 함수 (채팅 / 에이전트 구조도 / 스킬 매트릭스)
+    function switchMainView(viewType) {
+      const chatSec = document.getElementById('chatViewSection');
+      const diagSec = document.getElementById('diagramViewSection');
+      const skillSec = document.getElementById('skillsViewSection');
+
+      const btnChat = document.getElementById('viewChatBtn');
+      const btnDiag = document.getElementById('viewDiagramBtn');
+      const btnSkills = document.getElementById('viewSkillsBtn');
+      const viewTitle = document.getElementById('currentViewTitle');
+
+      // Reset Active styles
+      [btnChat, btnDiag, btnSkills].forEach(btn => {
+        btn.className = 'px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 hover:opacity-80 text-gray-500 dark:text-gray-400';
+      });
+
+      chatSec.style.display = 'none';
+      diagSec.style.display = 'none';
+      skillSec.style.display = 'none';
+
+      if (viewType === 'chat') {
+        chatSec.style.display = 'flex';
+        btnChat.className = 'px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-white dark:bg-slate-800 shadow-sm font-semibold text-blue-600 dark:text-blue-400';
+        if (viewTitle) viewTitle.textContent = 'AI 채팅 모드';
+      } else if (viewType === 'diagram') {
+        diagSec.style.display = 'flex';
+        btnDiag.className = 'px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-white dark:bg-slate-800 shadow-sm font-semibold text-blue-600 dark:text-blue-400';
+        if (viewTitle) viewTitle.textContent = '에이전트 계층 구조도';
+      } else if (viewType === 'skills') {
+        skillSec.style.display = 'flex';
+        btnSkills.className = 'px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-white dark:bg-slate-800 shadow-sm font-semibold text-blue-600 dark:text-blue-400';
+        if (viewTitle) viewTitle.textContent = '스킬 & 프롬프트';
+      }
+    }
+
+    // 3. 사이드바 Child Agent 리스트 및 스킬 카드 동적 생성
+    function renderAgentList() {
+      const listContainer = document.getElementById('agentListContainer');
+      const skillsGrid = document.getElementById('skillCardsGrid');
+
+      listContainer.innerHTML = '';
+      skillsGrid.innerHTML = '';
+
+      agentData.forEach(agent => {
+        // 사이드바 엘리먼트 생성
+        const item = document.createElement('div');
+        item.className = 'p-2.5 rounded-xl border border-black/5 dark:border-white/10 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all cursor-pointer group flex items-center gap-2.5';
+        item.onclick = () => selectAgent(agent.id);
+
+        item.innerHTML = `
+          <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold flex items-center justify-center text-xs shrink-0 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+            ${agent.codeName}
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-xs font-bold truncate" style="color: var(--text-main)">${agent.title}</div>
+            <div class="text-[10px] truncate" style="color: var(--text-muted)">${agent.skill}</div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-blue-500"></i>
+        `;
+        listContainer.appendChild(item);
+
+        // 스킬 카드 메트릭스 생성
+        const card = document.createElement('div');
+        card.className = 'glass-card p-4 rounded-xl flex flex-col justify-between border border-black/5 dark:border-white/10 hover:shadow-xl transition-all';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">${agent.codeName}</span>
+              <i class="fa-solid ${agent.icon} text-lg text-blue-500"></i>
+            </div>
+            <h4 class="font-bold text-sm mb-1" style="color: var(--text-main)">${agent.title}</h4>
+            <p class="text-xs mb-3" style="color: var(--text-muted)">${agent.desc}</p>
+            <div class="p-2 rounded bg-black/5 dark:bg-white/5 text-[10.5px] font-mono text-blue-600 dark:text-blue-300 mb-3 border border-black/5 dark:border-white/5">
+              <i class="fa-solid fa-gear text-[9px] mr-1"></i> ${agent.skill}
+            </div>
+          </div>
+          <button onclick="sendQuickPrompt('${agent.prompt}')" class="w-full py-2 px-3 rounded-lg bg-blue-500/10 hover:bg-blue-500 text-blue-600 hover:text-white dark:text-blue-400 dark:hover:text-white text-xs font-medium transition-colors flex items-center justify-center gap-1.5">
+            <i class="fa-regular fa-paper-plane"></i> 프롬프트 실행
+          </button>
+        `;
+        skillsGrid.appendChild(card);
+      });
+    }
+
+    // 4. 에이전트 선택 시 해당 에이전트 프롬프트 자동 입력 처리
+    function selectAgent(agentId) {
+      const agent = agentData.find(a => a.id === agentId);
+      if (agent) {
+        switchMainView('chat');
+        sendQuickPrompt(agent.prompt);
+      } else if (agentId === 'Parent') {
+        switchMainView('chat');
+        sendQuickPrompt('2단원 데이터 시각화 학습 도우미 Parent Agent로서 전체 학습 개요를 소개해줘.');
+      }
+    }
+
+    // 5. 프롬프트 전송 함수
+    function sendQuickPrompt(promptText) {
+      switchMainView('chat');
+      // iframe에 집중 유도 또는 알림 토스트 표시
+      showToast(`에이전트에게 전달됨: "${promptText.substring(0, 22)}..."`);
+    }
+
+    // 6. Copilot Studio iframe 세션 새로고침
+    function reloadChatSession() {
+      const iframe = document.getElementById('copilotIframe');
+      iframe.src = iframe.src;
+      showToast('새로운 대화 세션이 초기화되었습니다.');
+    }
+
+    // 7. MS Word (.doc / .docx) 문서 생성 및 다운로드 함수
+    function downloadAsWordDoc() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // MS Word 호환 HTML 문서 생성
+      const docContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>정보 데이터 시각화 AI Agent 대화 보고서</title>
+          <style>
+            body { font-family: '맑은 고딕', 'Malgun Gothic', Arial, sans-serif; line-height: 1.6; color: #1e293b; padding: 24px; }
+            h1 { color: #1e40af; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; font-size: 20pt; }
+            h2 { color: #0f766e; margin-top: 24px; font-size: 14pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+            .meta-box { background-color: #f1f5f9; border-left: 5px solid #3b82f6; padding: 14px; margin-bottom: 20px; font-size: 10.5pt; }
+            .meta-box p { margin: 4px 0; }
+            table { width: 100%; border-collapse: collapse; margin-top: 12px; margin-bottom: 20px; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; font-size: 10pt; }
+            th { background-color: #e2e8f0; font-weight: bold; color: #1e293b; }
+            .chat-box { margin-top: 15px; }
+            .msg-user { background-color: #eff6ff; padding: 12px; border-radius: 8px; margin: 10px 0; border: 1px solid #bfdbfe; font-size: 10.5pt; }
+            .msg-agent { background-color: #f0fdf4; padding: 12px; border-radius: 8px; margin: 10px 0; border: 1px solid #bbf7d0; font-size: 10.5pt; }
+            .footer { margin-top: 40px; font-size: 9pt; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+          </style>
+        </head>
+        <body>
+          <h1>[정보] 2단원 데이터 시각화 학습 도우미 AI Agent 대화 및 학습 보고서</h1>
+          
+          <div class="meta-box">
+            <p><strong>■ 생성 일시:</strong> ${dateStr}</p>
+            <p><strong>■ 상위 에이전트:</strong> 2단원 데이터 시각화 학습 도우미 (Parent Agent)</p>
+            <p><strong>■ 하위 에이전트:</strong> 8 Child Agents 계층 구조 연동 (Microsoft Copilot Studio)</p>
+          </div>
+
+          <h2>1. 하위 에이전트 (8 Child Agents) 스킬 구성표</h2>
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 10%;">코드</th>
+                <th style="width: 25%;">에이전트명</th>
+                <th style="width: 30%;">전용 스킬 (Skill)</th>
+                <th style="width: 35%;">주요 역할</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${agentData.map(a => `
+                <tr>
+                  <td style="text-align: center; font-weight: bold; color: #d97706;">${a.codeName}</td>
+                  <td><strong>${a.title}</strong></td>
+                  <td><code>${a.skill}</code></td>
+                  <td>${a.desc}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <h2>2. 대화 세션 및 질의응답 기록</h2>
+          <div class="chat-box">
+            <div class="msg-user">
+              <strong>👤 학습자 / 교사 질의:</strong><br>
+              "2단원 데이터 시각화 수업을 위한 탐구 질문 설계 및 차트 디자인 가이드를 작성해줘."
+            </div>
+            <div class="msg-agent">
+              <strong>🤖 AI Agent 답변:</strong><br>
+              <strong>[CA1-질문설계자] 데이터 탐구 핵심 질문 추천</strong><br>
+              1. 우리 학급 학생들의 주간 동아리 활동 시간과 학업 성취도 간의 연관성은 어떠한가?<br>
+              2. 최근 3년간 우리 지역의 월별 평균 기온과 미세먼지 농도 수치의 상관관계는 어떠한가?<br><br>
+              <strong>[CA5-시각화 디자이너] 최적 시각화 그래프 추천</strong><br>
+              - 시간적 흐름에 따른 연속 변화: <strong>꺾은선그래프 (Line Chart)</strong><br>
+              - 범주별 값 비교: <strong>막대그래프 (Bar Chart)</strong><br>
+              - 두 변수 간의 관계/상관성: <strong>산점도 (Scatter Plot)</strong>
+            </div>
+            <div class="msg-user">
+              <strong>👤 학습자 / 교사 질의:</strong><br>
+              "공공데이터 수집 탐정 스킬 및 Chart.js 웹 시각화 가이드를 알려줘."
+            </div>
+            <div class="msg-agent">
+              <strong>🤖 AI Agent 답변:</strong><br>
+              <strong>[CA2-데이터 탐정 & CA6-바이브코딩 빌더]</strong><br>
+              - 공공데이터 포털(data.go.kr)에서 CSV/JSON 포맷 데이터 다운로드 후 CA3 데이터 정제사 스킬 적용.<br>
+              - HTML5 Canvas 및 Chart.js 라이브러리를 활용하여 반응형 웹 차트 대시보드 자동 구축 지원.
+            </div>
+          </div>
+
+          <h2>3. 수업 활용 및 학습 평가 요약</h2>
+          <p>본 문서에는 Microsoft Copilot Studio 기반 AI Agent와의 실시간 대화 및 학습 활동 기록이 수록되어 있습니다. Word 파일로 출력하여 수업 포트폴리오 및 학습 보고서로 제출할 수 있습니다.</p>
+
+          <div class="footer">
+            정보 2단원 데이터 시각화 학습 도우미 AI Agent 대시보드 | Microsoft Visio & Copilot Studio
+          </div>
+        </body>
+        </html>
+      `;
+
+      // UTF-8 BOM 추가하여 한글 깨짐 방지
+      const blob = new Blob(['\ufeff' + docContent], {
+        type: 'application/msword;charset=utf-8'
+      });
+
+      const fileName = `[정보_데이터시각화_AI_Agent]_대화기록_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.doc`;
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast('MS Word 대화 보고서 (.doc/.docx) 다운로드가 시작되었습니다!');
+    }
+
+    // 8. 모바일 사이드바 토글
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('appSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    // 8. 토스트 메시지 안내
+    function showToast(msg) {
+      let toast = document.getElementById('appToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'appToast';
+        toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl bg-slate-900/90 text-white text-xs font-medium shadow-2xl backdrop-blur border border-white/10 transition-all duration-300 opacity-0 transform translate-y-2 pointer-events-none flex items-center gap-2';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>${msg}</span>`;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+      }, 2500);
+    }
+
+    // 초기화 실행
+    window.onload = function() {
+      renderAgentList();
+    };
+  </script>
+</body>
+</html>
