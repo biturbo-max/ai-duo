@@ -237,9 +237,6 @@
       <div class="flex-1 min-h-0 flex flex-col">
         <div id="chat-log" class="flex-1 overflow-y-auto px-6 py-5 space-y-4"></div>
         <form id="chat-form" class="flex gap-2 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80">
-          <button type="button" id="chat-login" class="hidden px-4 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shrink-0">
-            <i class="fa-brands fa-microsoft mr-1"></i> Microsoft 로그인
-          </button>
           <input id="chat-input" type="text" autocomplete="off" disabled placeholder="메시지를 입력하세요" class="flex-1 px-4 py-2.5 rounded-xl text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500 disabled:opacity-50">
           <button id="chat-send" type="submit" disabled class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 shrink-0">
             <i class="fa-solid fa-paper-plane"></i>
@@ -1279,7 +1276,6 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
   const form = document.getElementById('chat-form');
   const input = document.getElementById('chat-input');
   const sendBtn = document.getElementById('chat-send');
-  const loginBtn = document.getElementById('chat-login');
   const scopes = [CopilotStudioClient.scopeFromSettings(settings)];
   let msal, client, busy = false;
 
@@ -1320,14 +1316,13 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
     log.appendChild(btn);
   }
 
+  // 팝업 없이 브라우저에 이미 로그인된 Microsoft 365 세션으로 토큰을 받음
   async function getToken() {
-    const account = msal.getActiveAccount() ?? msal.getAllAccounts()[0];
-    if (!account) throw new Error('login_required');
-    try {
-      return (await msal.acquireTokenSilent({ scopes, account })).accessToken;
-    } catch {
-      return (await msal.acquireTokenPopup({ scopes, account })).accessToken;
-    }
+    const account = msal.getAllAccounts()[0];
+    const res = account
+      ? await msal.acquireTokenSilent({ scopes, account })
+      : await msal.ssoSilent({ scopes });
+    return res.accessToken;
   }
 
   async function start() {
@@ -1342,15 +1337,14 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
       setReady(true);
     } catch (e) {
       typing.remove();
-      if (e.message === 'login_required') return showLogin();
-      addMessage('system', '연결 실패: ' + e.message);
+      addMessage('system', '연결 실패: ' + e.message + ' (같은 브라우저에서 Microsoft 365에 먼저 로그인되어 있어야 합니다)');
     }
   }
 
   async function send(text) {
     text = text?.trim();
     if (!text || busy) return;
-    if (!client) return addMessage('system', '먼저 Microsoft 계정으로 로그인하세요.');
+    if (!client) return addMessage('system', '에이전트에 아직 연결되지 않았습니다.');
     busy = true;
     setReady(false);
     addMessage('user', text);
@@ -1365,22 +1359,6 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
       setReady(true);
     }
   }
-
-  function showLogin() {
-    loginBtn.classList.remove('hidden');
-    addMessage('system', 'Copilot Studio 에이전트를 사용하려면 학교 Microsoft 365 계정으로 로그인하세요.');
-  }
-
-  loginBtn.onclick = async () => {
-    try {
-      const res = await msal.loginPopup({ scopes });
-      msal.setActiveAccount(res.account);
-      loginBtn.classList.add('hidden');
-      start();
-    } catch (e) {
-      addMessage('system', '로그인 실패: ' + e.message);
-    }
-  };
 
   form.onsubmit = (e) => {
     e.preventDefault();
@@ -1403,7 +1381,6 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
       cache: { cacheLocation: 'localStorage' }
     });
     await msal.initialize();
-    await msal.handleRedirectPromise();
     start();
   }
 </script>
