@@ -7,7 +7,7 @@
   <title>정보 데이터 시각화 AI Agent 대시보드</title>
 
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Pretendard Font -->
@@ -233,15 +233,18 @@
         </button>
       </div>
 
-      <!-- Iframe Area -->
-      <div class="flex-1 w-full h-full relative">
-        <iframe
-          id="copilotIframe"
-          src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_bot_ymR7dk/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
-          class="w-full h-full border-0"
-          title="Copilot Studio Agent WebChat"
-          allow="microphone; camera">
-        </iframe>
+      <!-- Chat Area (Microsoft 365 Agents SDK · CopilotStudioClient) -->
+      <div class="flex-1 min-h-0 flex flex-col">
+        <div id="chat-log" class="flex-1 overflow-y-auto px-6 py-5 space-y-4"></div>
+        <form id="chat-form" class="flex gap-2 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80">
+          <button type="button" id="chat-login" class="hidden px-4 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shrink-0">
+            <i class="fa-brands fa-microsoft mr-1"></i> Microsoft 로그인
+          </button>
+          <input id="chat-input" type="text" autocomplete="off" disabled placeholder="메시지를 입력하세요" class="flex-1 px-4 py-2.5 rounded-xl text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500 disabled:opacity-50">
+          <button id="chat-send" type="submit" disabled class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 shrink-0">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
       </div>
     </section>
 
@@ -1224,23 +1227,12 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
 
     switchTab('chat');
 
-    const alertBox = document.createElement('div');
-    alertBox.className = 'fixed bottom-6 right-6 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl text-xs z-50 flex items-center gap-3 border border-slate-700 animate-bounce';
-    alertBox.innerHTML = `
-      <i class="fa-solid fa-paper-plane text-indigo-400"></i>
-      <div>
-        <strong class="block text-indigo-300">${agent.title} 프롬프트 선택됨</strong>
-        <span>채팅창에 아래 문구를 붙여넣으세요: "${escapeHtml(agent.prompt)}"</span>
-      </div>
-    `;
-    document.body.appendChild(alertBox);
-    setTimeout(() => alertBox.remove(), 4000);
+    window.copilotChat?.send(agent.prompt);
   }
 
   // Reset Chat Session
   function resetChatSession() {
-    const iframe = document.getElementById('copilotIframe');
-    if (iframe) iframe.src = iframe.src;
+    window.copilotChat?.reset();
   }
 
   // Theme Toggle (Light / Dark Mode)
@@ -1268,5 +1260,152 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
   };
 </script>
 
+<!-- Microsoft 365 Agents SDK: Copilot Studio 직접 연결 (iframe 대체) -->
+<script type="module">
+  import { CopilotStudioClient } from 'https://cdn.jsdelivr.net/npm/@microsoft/agents-copilotstudio-client@1.8.1/dist/src/browser.mjs';
+  import { PublicClientApplication } from 'https://cdn.jsdelivr.net/npm/@azure/msal-browser@4.30.0/+esm';
+  import { marked } from 'https://cdn.jsdelivr.net/npm/marked@15.0.12/+esm';
+  import DOMPurify from 'https://cdn.jsdelivr.net/npm/dompurify@3.4.17/+esm';
+
+  // Entra ID 앱 등록(Public client/SPA, 위임 권한 Power Platform API › CopilotStudio.Copilots.Invoke) 값을 입력하세요.
+  const settings = {
+    appClientId: '',
+    tenantId: '',
+    cloud: 'Prod',
+    directConnectUrl: 'https://9324e73acd4ee049b7ba177af6165e.9c.environment.api.powerplatform.com/copilotstudio/dataverse-backed/authenticated/bots/crbf2_bot_ymR7dk/conversations?api-version=2022-03-01-preview'
+  };
+
+  const log = document.getElementById('chat-log');
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+  const loginBtn = document.getElementById('chat-login');
+  const scopes = [CopilotStudioClient.scopeFromSettings(settings)];
+  let msal, client, busy = false;
+
+  function addMessage(role, text) {
+    const row = document.createElement('div');
+    row.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start');
+    const bubble = document.createElement('div');
+    bubble.className = role === 'user'
+      ? 'max-w-[75%] px-4 py-2.5 rounded-2xl rounded-br-sm bg-indigo-600 text-white text-sm whitespace-pre-wrap'
+      : role === 'system'
+        ? 'max-w-[85%] px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs border border-amber-200 dark:border-amber-900'
+        : 'max-w-[85%] px-4 py-3 rounded-2xl rounded-bl-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm prose prose-sm dark:prose-invert';
+    if (role === 'bot') bubble.innerHTML = DOMPurify.sanitize(marked.parse(text));
+    else bubble.textContent = text;
+    row.appendChild(bubble);
+    log.appendChild(row);
+    log.scrollTop = log.scrollHeight;
+    return row;
+  }
+
+  function setReady(ready) {
+    input.disabled = sendBtn.disabled = !ready;
+    if (ready) input.focus();
+  }
+
+  function showReplies(activities) {
+    for (const a of activities) {
+      if (a.type === 'message' && a.text) addMessage('bot', a.text);
+      for (const s of a.suggestedActions?.actions ?? []) addSuggestion(s.value ?? s.title);
+    }
+  }
+
+  function addSuggestion(text) {
+    const btn = document.createElement('button');
+    btn.className = 'ml-1 mt-1 px-3 py-1 rounded-full text-xs border border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950';
+    btn.textContent = text;
+    btn.onclick = () => send(text);
+    log.appendChild(btn);
+  }
+
+  async function getToken() {
+    const account = msal.getActiveAccount() ?? msal.getAllAccounts()[0];
+    if (!account) throw new Error('login_required');
+    try {
+      return (await msal.acquireTokenSilent({ scopes, account })).accessToken;
+    } catch {
+      return (await msal.acquireTokenPopup({ scopes, account })).accessToken;
+    }
+  }
+
+  async function start() {
+    log.replaceChildren();
+    setReady(false);
+    const typing = addMessage('system', '에이전트에 연결하는 중...');
+    try {
+      client = new CopilotStudioClient(settings, await getToken());
+      const replies = await client.startConversationAsync(true);
+      typing.remove();
+      showReplies(replies);
+      setReady(true);
+    } catch (e) {
+      typing.remove();
+      if (e.message === 'login_required') return showLogin();
+      addMessage('system', '연결 실패: ' + e.message);
+    }
+  }
+
+  async function send(text) {
+    text = text?.trim();
+    if (!text || busy) return;
+    if (!client) return addMessage('system', '먼저 Microsoft 계정으로 로그인하세요.');
+    busy = true;
+    setReady(false);
+    addMessage('user', text);
+    const typing = addMessage('system', '답변 작성 중...');
+    try {
+      showReplies(await client.askQuestionAsync(text));
+    } catch (e) {
+      addMessage('system', '전송 실패: ' + e.message);
+    } finally {
+      typing.remove();
+      busy = false;
+      setReady(true);
+    }
+  }
+
+  function showLogin() {
+    loginBtn.classList.remove('hidden');
+    addMessage('system', 'Copilot Studio 에이전트를 사용하려면 학교 Microsoft 365 계정으로 로그인하세요.');
+  }
+
+  loginBtn.onclick = async () => {
+    try {
+      const res = await msal.loginPopup({ scopes });
+      msal.setActiveAccount(res.account);
+      loginBtn.classList.add('hidden');
+      start();
+    } catch (e) {
+      addMessage('system', '로그인 실패: ' + e.message);
+    }
+  };
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const text = input.value;
+    input.value = '';
+    send(text);
+  };
+
+  window.copilotChat = { send, reset: start };
+
+  if (!settings.appClientId || !settings.tenantId) {
+    addMessage('system', '설정 필요: index.html 하단 settings의 appClientId·tenantId에 Entra ID 앱 등록 값을 입력하세요.');
+  } else {
+    msal = new PublicClientApplication({
+      auth: {
+        clientId: settings.appClientId,
+        authority: `https://login.microsoftonline.com/${settings.tenantId}`,
+        redirectUri: location.origin + location.pathname
+      },
+      cache: { cacheLocation: 'localStorage' }
+    });
+    await msal.initialize();
+    await msal.handleRedirectPromise();
+    start();
+  }
+</script>
 </body>
 </html>
