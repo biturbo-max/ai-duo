@@ -233,7 +233,7 @@
         </button>
       </div>
 
-      <!-- Chat Area (Microsoft 365 Agents SDK · CopilotStudioClient) -->
+      <!-- Chat Area (Copilot Studio Direct Line, 로그인 없음) -->
       <div class="flex-1 min-h-0 flex flex-col">
         <div id="chat-log" class="flex-1 overflow-y-auto px-6 py-5 space-y-4"></div>
         <form id="chat-form" class="flex gap-2 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80">
@@ -1257,27 +1257,22 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
   };
 </script>
 
-<!-- Microsoft 365 Agents SDK: Copilot Studio 직접 연결 (iframe 대체) -->
+<!-- Copilot Studio 에이전트 직접 연결 (로그인 없음, Direct Line) -->
 <script type="module">
-  import { CopilotStudioClient } from 'https://cdn.jsdelivr.net/npm/@microsoft/agents-copilotstudio-client@1.8.1/dist/src/browser.mjs';
-  import { PublicClientApplication } from 'https://cdn.jsdelivr.net/npm/@azure/msal-browser@4.30.0/+esm';
   import { marked } from 'https://cdn.jsdelivr.net/npm/marked@15.0.12/+esm';
   import DOMPurify from 'https://cdn.jsdelivr.net/npm/dompurify@3.4.17/+esm';
 
-  // Entra ID 앱 등록(Public client/SPA, 위임 권한 Power Platform API › CopilotStudio.Copilots.Invoke) 값을 입력하세요.
-  const settings = {
-    appClientId: '',
-    tenantId: '',
-    cloud: 'Prod',
-    directConnectUrl: 'https://9324e73acd4ee049b7ba177af6165e.9c.environment.api.powerplatform.com/copilotstudio/dataverse-backed/authenticated/bots/crbf2_bot_ymR7dk/conversations?api-version=2022-03-01-preview'
-  };
+  // Copilot Studio에서 에이전트 인증을 "인증 없음"으로 설정하고 게시해야 동작합니다.
+  const ENV_HOST = 'https://9324e73acd4ee049b7ba177af6165e.9c.environment.api.powerplatform.com';
+  const BOT_SCHEMA = 'crbf2_bot_ymR7dk';
+  const API = '?api-version=2022-03-01-preview';
 
   const log = document.getElementById('chat-log');
   const form = document.getElementById('chat-form');
   const input = document.getElementById('chat-input');
   const sendBtn = document.getElementById('chat-send');
-  const scopes = [CopilotStudioClient.scopeFromSettings(settings)];
-  let msal, client, busy = false;
+  const userId = 'student-' + crypto.randomUUID();
+  let dl, conv, session = 0, busy = false, typing = null;
 
   function addMessage(role, text) {
     const row = document.createElement('div');
@@ -1316,47 +1311,80 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
     log.appendChild(btn);
   }
 
-  // 팝업 없이 브라우저에 이미 로그인된 Microsoft 365 세션으로 토큰을 받음
-  async function getToken() {
-    const account = msal.getAllAccounts()[0];
-    const res = account
-      ? await msal.acquireTokenSilent({ scopes, account })
-      : await msal.ssoSilent({ scopes });
-    return res.accessToken;
+  async function dlFetch(path, body) {
+    const res = await fetch(dl + path, {
+      method: body ? 'POST' : 'GET',
+      headers: { Authorization: 'Bearer ' + conv.token, 'Content-Type': 'application/json' },
+      body: body && JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  function stopTyping() {
+    typing?.remove();
+    typing = null;
+    busy = false;
+    setReady(true);
+  }
+
+  // ponytail: 1초 폴링, 응답 지연이 문제되면 conv.streamUrl WebSocket으로 교체
+  async function poll(mySession) {
+    let watermark = '';
+    while (mySession === session) {
+      try {
+        const res = await dlFetch(`/conversations/${conv.conversationId}/activities?watermark=${watermark}`);
+        watermark = res.watermark ?? watermark;
+        const replies = res.activities.filter(a => a.from?.id !== userId);
+        if (mySession !== session) return;
+        showReplies(replies);
+        if (replies.some(a => a.type === 'message')) stopTyping();
+      } catch (e) {
+        addMessage('system', '수신 오류: ' + e.message);
+      }
+      await new Promise(r => setTimeout(r, 1000));
+    }
   }
 
   async function start() {
+    const mySession = ++session;
     log.replaceChildren();
     setReady(false);
-    const typing = addMessage('system', '에이전트에 연결하는 중...');
+    typing = addMessage('system', '에이전트에 연결하는 중...');
+    busy = true;
     try {
-      client = new CopilotStudioClient(settings, await getToken());
-      const replies = await client.startConversationAsync(true);
-      typing.remove();
-      showReplies(replies);
-      setReady(true);
+      const [regional, tokenRes] = await Promise.all([
+        fetch(`${ENV_HOST}/powervirtualagents/regionalchannelsettings${API}`).then(r => r.json()),
+        fetch(`${ENV_HOST}/powervirtualagents/botsbyschema/${BOT_SCHEMA}/directline/token${API}`).then(r => {
+          if (!r.ok) throw new Error('토큰 발급 실패 HTTP ' + r.status + ' (에이전트 인증이 "인증 없음"인지 확인하세요)');
+          return r.json();
+        })
+      ]);
+      dl = (regional.channelUrlsById?.directline ?? 'https://directline.botframework.com/') + 'v3/directline';
+      conv = { token: tokenRes.token };
+      conv = await dlFetch('/conversations', {});
+      await dlFetch(`/conversations/${conv.conversationId}/activities`, { type: 'event', name: 'startConversation', from: { id: userId }, locale: 'ko-KR' });
+      stopTyping();
+      poll(mySession);
     } catch (e) {
-      typing.remove();
-      addMessage('system', '연결 실패: ' + e.message + ' (같은 브라우저에서 Microsoft 365에 먼저 로그인되어 있어야 합니다)');
+      typing?.remove();
+      addMessage('system', '연결 실패: ' + e.message);
     }
   }
 
   async function send(text) {
     text = text?.trim();
     if (!text || busy) return;
-    if (!client) return addMessage('system', '에이전트에 아직 연결되지 않았습니다.');
+    if (!conv?.conversationId) return addMessage('system', '에이전트에 아직 연결되지 않았습니다.');
     busy = true;
     setReady(false);
     addMessage('user', text);
-    const typing = addMessage('system', '답변 작성 중...');
+    typing = addMessage('system', '답변 작성 중...');
     try {
-      showReplies(await client.askQuestionAsync(text));
+      await dlFetch(`/conversations/${conv.conversationId}/activities`, { type: 'message', from: { id: userId }, text, locale: 'ko-KR' });
     } catch (e) {
       addMessage('system', '전송 실패: ' + e.message);
-    } finally {
-      typing.remove();
-      busy = false;
-      setReady(true);
+      stopTyping();
     }
   }
 
@@ -1369,20 +1397,7 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
 
   window.copilotChat = { send, reset: start };
 
-  if (!settings.appClientId || !settings.tenantId) {
-    addMessage('system', '설정 필요: index.html 하단 settings의 appClientId·tenantId에 Entra ID 앱 등록 값을 입력하세요.');
-  } else {
-    msal = new PublicClientApplication({
-      auth: {
-        clientId: settings.appClientId,
-        authority: `https://login.microsoftonline.com/${settings.tenantId}`,
-        redirectUri: location.origin + location.pathname
-      },
-      cache: { cacheLocation: 'localStorage' }
-    });
-    await msal.initialize();
-    start();
-  }
+  start();
 </script>
 </body>
 </html>
