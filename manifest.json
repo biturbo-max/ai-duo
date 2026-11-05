@@ -49,6 +49,27 @@
       "type": "image/png",
       "form_factor": "wide",
       "label": "에이전트별 지침서와 스킬"
+    },
+    {
+      "src": "screenshots/narrow-drawer.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "에이전트 메뉴"
+    },
+    {
+      "src": "screenshots/narrow-structure.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "AI Agent 계층 구조도"
+    },
+    {
+      "src": "screenshots/narrow-skills.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "에이전트별 지침서와 스킬"
     }
   ],
   "prefer_related_applications": false
