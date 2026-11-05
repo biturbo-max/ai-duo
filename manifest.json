@@ -116,5 +116,12 @@
       "navigate-existing",
       "auto"
     ]
-  }
+  },
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=io.github.biturbo_max.aiduo",
+      "id": "io.github.biturbo_max.aiduo"
+    }
+  ]
 }
