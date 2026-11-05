@@ -50,5 +50,6 @@
       "form_factor": "wide",
       "label": "에이전트별 지침서와 스킬"
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }
