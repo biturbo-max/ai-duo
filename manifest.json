@@ -72,5 +72,49 @@
       "label": "에이전트별 지침서와 스킬"
     }
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Copilot AI Agent 대화",
+      "short_name": "AI 대화",
+      "url": "/ai-duo/",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "에이전트 구조도",
+      "short_name": "구조도",
+      "url": "/ai-duo/?tab=structure",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Instructions & Skill",
+      "short_name": "지침서·스킬",
+      "url": "/ai-duo/?tab=skills",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  }
 }

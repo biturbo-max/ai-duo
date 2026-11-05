@@ -1283,6 +1283,9 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
   // Initial Onload
   window.onload = function() {
     renderSkillsGrid();
+    // Home-screen shortcuts open a tab directly: ?tab=structure | skills
+    const tab = new URLSearchParams(location.search).get('tab');
+    if (['structure', 'skills'].includes(tab)) switchTab(tab);
   };
 </script>
 
