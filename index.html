@@ -6,6 +6,12 @@
   <meta name="color-scheme" content="light dark">
   <title>정보 데이터 시각화 AI Agent 대시보드</title>
 
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
   <!-- FontAwesome Icons -->
@@ -61,6 +67,34 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
+    /* ===== 에이전트 허브 레이아웃 ===== */
+    .top-tab{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;font-size:14px;font-weight:700;color:#64748b;white-space:nowrap;transition:background .15s,color .15s}
+    .top-tab:hover{background:#f1f5f9}
+    .top-tab.is-active{background:#eef2ff;color:#4f46e5}
+    .dark .top-tab{color:#94a3b8}.dark .top-tab:hover{background:#1e293b}
+    .dark .top-tab.is-active{background:rgba(79,70,229,.18);color:#a5b4fc}
+
+    .bottom-tab{display:grid;justify-items:center;gap:3px;padding:8px 0 9px;font-size:11px;font-weight:700;color:#64748b}
+    .bottom-tab i{font-size:18px}
+    .bottom-tab.is-active{color:#4f46e5}
+    .dark .bottom-tab{color:#94a3b8}.dark .bottom-tab.is-active{color:#a5b4fc}
+
+    .agent-cards{scrollbar-width:none}
+    .agent-cards::-webkit-scrollbar{display:none}
+    .agent-card{flex:0 0 132px;scroll-snap-align:start;text-align:left;padding:11px 12px;border-radius:14px;background:#fff;border:1px solid #e2e8f0;transition:border-color .15s,box-shadow .15s,transform .15s}
+    .agent-card:hover{border-color:#a5b4fc;transform:translateY(-1px)}
+    .agent-card.is-active{border-color:#4f46e5;box-shadow:0 0 0 3px #e0e7ff}
+    .agent-card b{display:block;font-size:13px;color:#0f172a;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .agent-card small{display:block;font-size:11px;color:#64748b;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .agent-tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 6px;border-radius:6px;background:rgba(245,158,11,.12);color:#d97706}
+    .agent-tag-0{background:rgba(79,70,229,.1);color:#4f46e5}
+    .dark .agent-card{background:#0f172a;border-color:#1e293b}
+    .dark .agent-card:hover{border-color:#4338ca}
+    .dark .agent-card.is-active{border-color:#818cf8;box-shadow:0 0 0 3px rgba(79,70,229,.25)}
+    .dark .agent-card b{color:#f1f5f9}.dark .agent-card small{color:#94a3b8}
+    .dark .agent-tag{color:#fbbf24}.dark .agent-tag-0{color:#a5b4fc}
+    @media (min-width:768px){.agent-card{flex:none;padding:12px 13px}}
+
     /* Code preview clamp */
     .clamp-3-lines {
       display: -webkit-box;
@@ -72,10 +106,11 @@
 </head>
 <body class="h-full bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300">
 
-<div class="flex h-full w-full overflow-hidden">
+<div class="flex h-full h-[100dvh] w-full overflow-hidden">
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="w-72 flex-shrink-0 flex flex-col justify-between border-r border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-20 transition-all duration-300">
+  <!-- 모바일 전용 서랍 메뉴 (PC는 상단 탭 + 에이전트 카드 사용) -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 max-w-[85vw] -translate-x-full md:hidden overflow-y-auto flex-shrink-0 flex flex-col justify-between border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 md:bg-white/80 md:dark:bg-slate-900/80 backdrop-blur-md z-40 md:z-20 transition-all duration-300">
     <div>
       <!-- Brand Header -->
       <div class="p-5 border-b border-slate-200/80 dark:border-slate-800">
@@ -169,7 +204,7 @@
     <!-- Sidebar Bottom Actions -->
     <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
       <button onclick="toggleTheme()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-        <i id="theme-icon" class="fa-solid fa-moon"></i>
+        <i id="theme-icon" class="theme-icon fa-solid fa-moon"></i>
         <span id="theme-label">다크 모드</span>
       </button>
       <button onclick="resetChatSession()" title="새 대화 시작" class="px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 transition">
@@ -178,63 +213,105 @@
     </div>
   </aside>
 
+  <!-- Mobile drawer backdrop -->
+  <div id="sidebar-overlay" onclick="toggleSidebar(false)" class="hidden fixed inset-0 bg-slate-900/40 z-30 md:hidden"></div>
+
   <main class="flex-1 flex flex-col min-w-0 bg-slate-50/50 dark:bg-slate-950/50 relative">
 
     <!-- Top Navigation Header Bar -->
-    <header class="h-16 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 flex items-center justify-between z-10">
-      <div class="flex items-center gap-3">
-        <span id="current-view-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+    <header class="h-14 md:h-[68px] shrink-0 border-b border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 md:px-6 flex items-center justify-between gap-2 md:gap-4 z-10">
+      <div class="flex items-center gap-2 md:gap-4 min-w-0">
+        <button onclick="toggleSidebar(true)" class="md:hidden w-10 h-10 -ml-1 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0" aria-label="메뉴 열기">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+
+        <!-- Brand -->
+        <div class="flex items-center gap-2.5 min-w-0 shrink-0">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/30 shrink-0">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <div class="min-w-0 leading-tight">
+            <div class="text-[11px] font-extrabold text-indigo-600 dark:text-indigo-400 truncate">2026 Connect AI · E팀</div>
+            <div class="text-sm font-bold text-slate-900 dark:text-white truncate">정보 데이터 시각화</div>
+          </div>
+        </div>
+
+        <!-- PC 상단 탭 -->
+        <nav class="hidden md:flex items-center gap-1 shrink-0" aria-label="화면 전환">
+          <button onclick="switchTab('chat')" data-tab="chat" class="top-tab is-active"><i class="fa-solid fa-comments"></i>대화</button>
+          <button onclick="switchTab('structure')" data-tab="structure" class="top-tab"><i class="fa-solid fa-sitemap"></i>구조도</button>
+          <button onclick="switchTab('skills')" data-tab="skills" class="top-tab"><i class="fa-solid fa-book-bookmark"></i><span class="lg:hidden">스킬</span><span class="hidden lg:inline">Instructions &amp; Skill</span></button>
+        </nav>
+
+        <span id="current-view-badge" class="hidden xl:inline-block shrink-0 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
           Copilot Agent
         </span>
-        <h2 id="current-view-title" class="text-base font-bold text-slate-800 dark:text-slate-100">
+        <h2 id="current-view-title" class="hidden xl:block truncate text-base font-bold text-slate-800 dark:text-slate-100">
           데이터 시각화 학습 도우미 AI Agent
         </h2>
       </div>
 
-      <div class="flex items-center gap-3">
-        <a href="https://senedukr-my.sharepoint.com/:f:/g/personal/connectai230_kosacai_onmicrosoft_com/IgC_yYZRJUmfSZ9TMz2mTnmsAeelJwtdhR2uQN0tfpRiggA?e=jNpHOI" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-md shadow-emerald-500/20 transition-all shrink-0">
+      <div class="flex items-center gap-1.5 md:gap-2 shrink-0">
+        <button onclick="toggleTheme()" class="hidden md:flex w-9 h-9 items-center justify-center rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="다크 모드 전환" title="다크 모드 전환">
+          <i class="theme-icon fa-solid fa-moon"></i>
+        </button>
+        <button onclick="resetChatSession()" class="hidden md:flex w-9 h-9 items-center justify-center rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="새 대화 시작" title="새 대화 시작">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <a href="https://senedukr-my.sharepoint.com/:f:/g/personal/connectai230_kosacai_onmicrosoft_com/IgC_yYZRJUmfSZ9TMz2mTnmsAeelJwtdhR2uQN0tfpRiggA?e=jNpHOI" target="_blank" rel="noopener noreferrer" aria-label="자료 업로드" class="flex items-center gap-2 px-3 md:px-3.5 py-2 md:py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-md shadow-emerald-500/20 transition-all shrink-0">
           <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
-          <span>자료 업로드</span>
+          <span class="hidden sm:inline">자료 업로드</span>
         </a>
       </div>
     </header>
 
     <!-- TAB 1: Chat View -->
-    <section id="tab-chat" class="tab-content flex-1 flex flex-col min-h-0">
-      <!-- Quick Prompt Chip Bar (CA0 ~ CA8 Displayed) -->
-      <div class="px-6 py-2.5 bg-slate-100/70 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-800 overflow-x-auto flex items-center gap-2 text-xs">
-        <span class="font-bold text-slate-400 shrink-0">추천 프롬프트:</span>
-        <button onclick="sendQuickPrompt('CA0')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-medium shrink-0 transition">
-          <strong class="text-indigo-600 dark:text-indigo-400">CA0</strong> 하네스 가이드
-        </button>
-        <button onclick="sendQuickPrompt('CA1')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-medium shrink-0 transition">
-          <strong class="text-amber-600 dark:text-amber-400">CA1</strong> 질문 설계
-        </button>
-        <button onclick="sendQuickPrompt('CA2')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-medium shrink-0 transition">
-          <strong class="text-amber-600 dark:text-amber-400">CA2</strong> 데이터 탐정
-        </button>
-        <button onclick="sendQuickPrompt('CA3')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-medium shrink-0 transition">
-          <strong class="text-amber-600 dark:text-amber-400">CA3</strong> 데이터 정제사
-        </button>
-        <button onclick="sendQuickPrompt('CA4')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-medium shrink-0 transition">
-          <strong class="text-amber-600 dark:text-amber-400">CA4</strong> 분석 파트너
-        </button>
-        <button onclick="sendQuickPrompt('CA5')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-medium shrink-0 transition">
-          <strong class="text-amber-600 dark:text-amber-400">CA5</strong> 시각화 디자이너
-        </button>
-        <button onclick="sendQuickPrompt('CA6')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-medium shrink-0 transition">
-          <strong class="text-amber-600 dark:text-amber-400">CA6</strong> 바이브코딩
-        </button>
-        <button onclick="sendQuickPrompt('CA7')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-medium shrink-0 transition">
-          <strong class="text-amber-600 dark:text-amber-400">CA7</strong> 스토리텔러
-        </button>
-        <button onclick="sendQuickPrompt('CA8')" class="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-medium shrink-0 transition">
-          <strong class="text-amber-600 dark:text-amber-400">CA8</strong> 수업설계 보고서
-        </button>
+    <section id="tab-chat" class="tab-content flex-1 flex flex-col md:flex-row min-h-0">
+      <!-- 에이전트 카드: 모바일은 가로 스크롤, PC는 왼쪽 2열 그리드 -->
+      <div class="shrink-0 md:w-[320px] lg:w-[360px] md:overflow-y-auto px-2.5 pt-2.5 pb-1 md:p-5 md:pr-4">
+        <h3 class="hidden md:block text-[13px] font-extrabold text-slate-500 dark:text-slate-400 mb-3">에이전트를 골라 대화를 시작하세요</h3>
+        <div class="agent-cards flex md:grid md:grid-cols-2 gap-2.5 overflow-x-auto md:overflow-visible snap-x pb-1.5 md:pb-0">
+          <button onclick="sendQuickPrompt('CA0')" data-agent="CA0" class="agent-card">
+            <span class="agent-tag agent-tag-0">CA0</span>
+            <b>하네스 가이드</b><small>전체 흐름 안내</small>
+          </button>
+          <button onclick="sendQuickPrompt('CA1')" data-agent="CA1" class="agent-card">
+            <span class="agent-tag">CA1</span>
+            <b>질문 설계</b><small>탐구 질문 만들기</small>
+          </button>
+          <button onclick="sendQuickPrompt('CA2')" data-agent="CA2" class="agent-card">
+            <span class="agent-tag">CA2</span>
+            <b>데이터 탐정</b><small>공공데이터 찾기</small>
+          </button>
+          <button onclick="sendQuickPrompt('CA3')" data-agent="CA3" class="agent-card">
+            <span class="agent-tag">CA3</span>
+            <b>데이터 정제사</b><small>결측·이상치 정리</small>
+          </button>
+          <button onclick="sendQuickPrompt('CA4')" data-agent="CA4" class="agent-card">
+            <span class="agent-tag">CA4</span>
+            <b>분석 파트너</b><small>패턴·관계 분석</small>
+          </button>
+          <button onclick="sendQuickPrompt('CA5')" data-agent="CA5" class="agent-card">
+            <span class="agent-tag">CA5</span>
+            <b>시각화 디자이너</b><small>알맞은 차트 고르기</small>
+          </button>
+          <button onclick="sendQuickPrompt('CA6')" data-agent="CA6" class="agent-card">
+            <span class="agent-tag">CA6</span>
+            <b>바이브코딩</b><small>웹앱 만들기</small>
+          </button>
+          <button onclick="sendQuickPrompt('CA7')" data-agent="CA7" class="agent-card">
+            <span class="agent-tag">CA7</span>
+            <b>스토리텔러</b><small>발표 준비</small>
+          </button>
+          <button onclick="sendQuickPrompt('CA8')" data-agent="CA8" class="agent-card">
+            <span class="agent-tag">CA8</span>
+            <b>수업설계 보고서</b><small>교사용</small>
+          </button>
+        </div>
       </div>
 
       <!-- Chat Area (Copilot Studio Direct Line, 로그인 없음) -->
-      <div class="flex-1 min-h-0 flex flex-col">
+      <div class="flex-1 min-h-0 flex flex-col mx-2.5 mb-2.5 md:m-5 md:ml-1 md:mr-6 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
         <div id="chat-log" class="flex-1 overflow-y-auto px-6 py-5 space-y-4"></div>
         <form id="chat-form" class="flex gap-2 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80">
           <input id="chat-input" type="text" autocomplete="off" disabled placeholder="메시지를 입력하세요" class="flex-1 px-4 py-2.5 rounded-xl text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500 disabled:opacity-50">
@@ -246,7 +323,7 @@
     </section>
 
     <!-- TAB 2: Agent Structure Map -->
-    <section id="tab-structure" class="tab-content hidden flex-1 overflow-y-auto p-6 md:p-10">
+    <section id="tab-structure" class="tab-content hidden flex-1 overflow-y-auto p-4 md:p-10">
       <div class="max-w-6xl mx-auto space-y-8">
         <div class="text-center space-y-2">
           <h3 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white">[정보] 2단원 데이터-데이터 시각화 학습 도우미 AI Agent 계층 구조도</h3>
@@ -458,7 +535,7 @@
     </section>
 
     <!-- TAB 3: Instructions & Skill View -->
-    <section id="tab-skills" class="tab-content hidden flex-1 overflow-y-auto p-6 md:p-8">
+    <section id="tab-skills" class="tab-content hidden flex-1 overflow-y-auto p-4 md:p-8">
       <div class="max-w-7xl mx-auto space-y-6">
 
         <!-- Top Header for Skills & Resource Download -->
@@ -481,6 +558,13 @@
       </div>
     </section>
 
+    <!-- 모바일 하단 탭 바 -->
+    <nav class="md:hidden shrink-0 grid grid-cols-4 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)]" aria-label="화면 전환">
+      <button onclick="switchTab('chat')" data-tab="chat" class="bottom-tab is-active"><i class="fa-solid fa-comments"></i>대화</button>
+      <button onclick="toggleSidebar(true)" class="bottom-tab"><i class="fa-solid fa-compass"></i>에이전트</button>
+      <button onclick="switchTab('structure')" data-tab="structure" class="bottom-tab"><i class="fa-solid fa-sitemap"></i>구조도</button>
+      <button onclick="switchTab('skills')" data-tab="skills" class="bottom-tab"><i class="fa-solid fa-book-bookmark"></i>스킬</button>
+    </nav>
   </main>
 </div>
 
@@ -1176,14 +1260,22 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
   }
 
   // Tab Switching Handler
+  function toggleSidebar(open) {
+    document.getElementById('sidebar').classList.toggle('-translate-x-full', !open);
+    document.getElementById('sidebar-overlay').classList.toggle('hidden', !open);
+  }
+
   function switchTab(tabName) {
     activeTab = tabName;
+    toggleSidebar(false);
 
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.classList.remove('bg-indigo-50', 'dark:bg-indigo-950/50', 'text-indigo-600', 'dark:text-indigo-400');
       btn.classList.add('text-slate-600', 'dark:text-slate-400');
     });
+
+    document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('is-active', b.dataset.tab === tabName));
 
     const activeContent = document.getElementById(`tab-${tabName}`);
     const activeNav = document.getElementById(`nav-${tabName}`);
@@ -1223,6 +1315,7 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
     if (!agent) return;
 
     switchTab('chat');
+    document.querySelectorAll('.agent-card').forEach(c => c.classList.toggle('is-active', c.dataset.agent === agentId));
 
     window.copilotChat?.send(agent.prompt);
   }
@@ -1235,25 +1328,23 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
   // Theme Toggle (Light / Dark Mode)
   function toggleTheme() {
     const html = document.documentElement;
-    const themeIcon = document.getElementById('theme-icon');
     const themeLabel = document.getElementById('theme-label');
 
-    if (currentTheme === 'light') {
-      currentTheme = 'dark';
-      html.classList.add('dark');
-      themeIcon.className = 'fa-solid fa-sun text-amber-400';
-      themeLabel.innerText = '라이트 모드';
-    } else {
-      currentTheme = 'light';
-      html.classList.remove('dark');
-      themeIcon.className = 'fa-moon';
-      themeLabel.innerText = '다크 모드';
-    }
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    const dark = currentTheme === 'dark';
+    html.classList.toggle('dark', dark);
+    document.querySelectorAll('.theme-icon').forEach(i => {
+      i.className = 'theme-icon fa-solid ' + (dark ? 'fa-sun text-amber-400' : 'fa-moon');
+    });
+    themeLabel.innerText = dark ? '라이트 모드' : '다크 모드';
   }
 
   // Initial Onload
   window.onload = function() {
     renderSkillsGrid();
+    // Home-screen shortcuts open a tab directly: ?tab=structure | skills
+    const tab = new URLSearchParams(location.search).get('tab');
+    if (['structure', 'skills'].includes(tab)) switchTab(tab);
   };
 </script>
 
@@ -1398,6 +1489,10 @@ description: 교사가 음성으로 말한 내용을 인터뷰식으로 수집�
   window.copilotChat = { send, reset: start };
 
   start();
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>

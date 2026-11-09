@@ -1,0 +1,127 @@
+{
+  "id": "/ai-duo/",
+  "name": "AI Duo - 데이터 시각화 학습",
+  "short_name": "AI Duo",
+  "description": "고등학교 정보 교과 데이터·빅데이터 단원을 위한 데이터 시각화 학습 웹앱",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "/ai-duo/",
+  "scope": "/ai-duo/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/wide-structure.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "AI Agent 계층 구조도"
+    },
+    {
+      "src": "screenshots/wide-skills.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "에이전트별 지침서와 스킬"
+    },
+    {
+      "src": "screenshots/narrow-drawer.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "에이전트 메뉴"
+    },
+    {
+      "src": "screenshots/narrow-structure.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "AI Agent 계층 구조도"
+    },
+    {
+      "src": "screenshots/narrow-skills.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "에이전트별 지침서와 스킬"
+    }
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Copilot AI Agent 대화",
+      "short_name": "AI 대화",
+      "url": "/ai-duo/",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "에이전트 구조도",
+      "short_name": "구조도",
+      "url": "/ai-duo/?tab=structure",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Instructions & Skill",
+      "short_name": "지침서·스킬",
+      "url": "/ai-duo/?tab=skills",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  },
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=io.github.biturbo_max.aiduo",
+      "id": "io.github.biturbo_max.aiduo"
+    }
+  ]
+}
