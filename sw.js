@@ -14,6 +14,8 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET' || !e.request.url.startsWith('http')) return;
+  // Agent API (token, Direct Line polling) must never be cached
+  if (/powerplatform\.com|botframework\.com/.test(new URL(e.request.url).hostname)) return;
   e.respondWith(
     fetch(e.request)
       .then((res) => {
